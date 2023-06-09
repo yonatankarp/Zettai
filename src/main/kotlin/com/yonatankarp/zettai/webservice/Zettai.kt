@@ -1,9 +1,6 @@
 package com.yonatankarp.zettai.webservice
 
-import com.yonatankarp.zettai.domain.ListName
-import com.yonatankarp.zettai.domain.ToDoItem
-import com.yonatankarp.zettai.domain.ToDoList
-import com.yonatankarp.zettai.domain.User
+import com.yonatankarp.zettai.domain.*
 import com.yonatankarp.zettai.ui.HtmlPage
 import com.yonatankarp.zettai.utils.andThen
 import org.http4k.core.HttpHandler
@@ -15,7 +12,7 @@ import org.http4k.routing.bind
 import org.http4k.routing.path
 import org.http4k.routing.routes
 
-class Zettai(val lists: Map<User, List<ToDoList>>) : HttpHandler {
+class Zettai(private val lists: Map<User, List<ToDoList>>) : HttpHandler {
 
     val routes = routes(
         "/todo/{user}/{list}" bind Method.GET to ::getToDoList
@@ -42,8 +39,7 @@ class Zettai(val lists: Map<User, List<ToDoList>>) : HttpHandler {
     }
 
     private fun fetchListContent(listId: Pair<User, ListName>): ToDoList =
-        lists[listId.first]
-            ?.firstOrNull { it.listName == listId.second }
+        lists[listId.first]?.first { it.listName == listId.second }
             ?: error("List unknown")
 
     private fun renderHtml(list: ToDoList): HtmlPage = HtmlPage(

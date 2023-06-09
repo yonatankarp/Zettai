@@ -1,9 +1,6 @@
 package com.yonatankarp.zettai.webservice
 
-import com.yonatankarp.zettai.domain.ListName
-import com.yonatankarp.zettai.domain.ToDoItem
-import com.yonatankarp.zettai.domain.ToDoList
-import com.yonatankarp.zettai.domain.User
+import com.yonatankarp.zettai.domain.*
 import org.http4k.server.Jetty
 import org.http4k.server.asServer
 

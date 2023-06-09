@@ -1,9 +1,6 @@
 package com.yonatankarp.zettai.at
 
-import com.yonatankarp.zettai.domain.ListName
-import com.yonatankarp.zettai.domain.ToDoItem
-import com.yonatankarp.zettai.domain.ToDoList
-import com.yonatankarp.zettai.domain.User
+import com.yonatankarp.zettai.domain.*
 import com.yonatankarp.zettai.webservice.Zettai
 import org.http4k.client.JettyClient
 import org.http4k.core.*
@@ -12,9 +9,9 @@ import org.http4k.server.Jetty
 import org.http4k.server.asServer
 import org.junit.jupiter.api.fail
 
-fun startTheApplication(lists: Map<User, List<ToDoList>>): ApplicationForAT {
+fun startTheApplication(hub: ToDoListHub): ApplicationForAT {
     val port = 8081 // different from main
-    val server = Zettai(lists).asServer(Jetty(port))
+    val server = Zettai(hub).asServer(Jetty(port))
     server.start()
 
     val client = ClientFilters
@@ -25,7 +22,7 @@ fun startTheApplication(lists: Map<User, List<ToDoList>>): ApplicationForAT {
 }
 
 
-class ApplicationForAT(private val client: HttpHandler, private val server: AutoCloseable): Actions {
+class ApplicationForAT(private val client: HttpHandler, private val server: AutoCloseable) : Actions {
 
     fun runScenario(vararg steps: Step) = server.use {
         steps.onEach { step -> step(this) }

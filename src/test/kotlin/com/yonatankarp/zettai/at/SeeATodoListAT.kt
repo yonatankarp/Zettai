@@ -1,6 +1,6 @@
 package com.yonatankarp.zettai.at
 
-import com.yonatankarp.zettai.domain.User
+import com.yonatankarp.zettai.domain.ToDoListHub
 import org.junit.jupiter.api.Test
 
 class SeeATodoListAT {
@@ -13,16 +13,16 @@ class SeeATodoListAT {
     private val gardenItems = listOf("fix the fence", "mowing the lawn")
     private val bobList = createList("gardening", gardenItems)
 
-    private val lists = mapOf(
-        frank.asUser() to listOf(frankList),
-        bob.asUser() to listOf(bobList)
+    private val hub = ToDoListHub(
+        mapOf(
+            frank.asUser() to listOf(frankList),
+            bob.asUser() to listOf(bobList)
+        )
     )
-
-    private fun ToDoListOwner.asUser() = User(name)
 
     @Test
     fun `List owners can see their lists`() {
-        val app = startTheApplication(lists)
+        val app = startTheApplication(hub)
         app.runScenario(
             frank.canSeeTheList("shopping", shoppingItems, app),
             bob.canSeeTheList("gardening", gardenItems, app)
@@ -31,7 +31,7 @@ class SeeATodoListAT {
 
     @Test
     fun `Only owners can see their lists`() {
-        val app = startTheApplication(lists)
+        val app = startTheApplication(hub)
         app.runScenario(
             frank.cannotSeeTheList("gardening", app),
             bob.cannotSeeTheList("shopping", app)

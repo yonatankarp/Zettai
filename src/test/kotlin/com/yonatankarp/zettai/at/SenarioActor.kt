@@ -3,6 +3,7 @@ package com.yonatankarp.zettai.at
 import com.yonatankarp.zettai.domain.ListName
 import com.yonatankarp.zettai.domain.ToDoList
 import com.yonatankarp.zettai.domain.ToDoItem
+import com.yonatankarp.zettai.domain.User
 import org.opentest4j.AssertionFailedError
 import strikt.api.expectThat
 import strikt.api.expectThrows
@@ -26,3 +27,5 @@ class ToDoListOwner(override val name: String) : ScenarioActor {
         expectThrows<AssertionFailedError> { app.getToDoList(name, listName) }
     }
 }
+
+fun ToDoListOwner.asUser() = User(name)

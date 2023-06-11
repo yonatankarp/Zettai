@@ -12,6 +12,7 @@ repositories {
 
 dependencies {
     val http4kVersion = project.properties["http4kVersion"].toString()
+    val jsoupVersion = project.properties["jsoupVersion"].toString()
     val junitLauncherVersion = project.properties["junitLauncherVersion"].toString()
     val junitVersion = project.properties["junitVersion"].toString()
     val kotlinLoggingVersion = project.properties["kotlinLoggingVersion"].toString()
@@ -34,6 +35,7 @@ dependencies {
     testImplementation("com.ubertob.pesticide:pesticide-core:$pesticideVersion")
     testImplementation("io.strikt:strikt-core:$striktVersion")
     testImplementation("org.http4k:http4k-client-jetty:$http4kVersion")
+    testImplementation("org.jsoup:jsoup:${jsoupVersion}")
 }
 
 tasks.withType<Test>().configureEach {

@@ -3,20 +3,22 @@ package com.yonatankarp.zettai.ddt.actions
 import com.ubertob.pesticide.core.DdtProtocol
 import com.ubertob.pesticide.core.DomainOnly
 import com.ubertob.pesticide.core.Ready
-import com.yonatankarp.zettai.domain.ListName
-import com.yonatankarp.zettai.domain.ToDoList
-import com.yonatankarp.zettai.domain.ToDoListHub
-import com.yonatankarp.zettai.domain.User
+import com.yonatankarp.zettai.domain.*
 
-class DomainOnlyActions: ZettaiActions {
+class DomainOnlyActions : ZettaiActions {
 
     override val protocol: DdtProtocol = DomainOnly
     override fun prepare() = Ready
 
-    private val lists: Map<User, List<ToDoList>> = emptyMap()
+    private val store: ToDoListStore = mutableMapOf()
 
-    private val hub = ToDoListHub(lists)
+    private val fetcher = ToDoListFetcherFromMap(store)
 
-    override fun getToDoList(user: User, listName: ListName): ToDoList? =
-        hub.getList(user, listName)
+    private val hub = ToDoListHub(fetcher)
+
+    override fun getToDoList(user: User, listName: ListName): ToDoList? = hub.getList(user, listName)
+
+    override fun addListItem(user: User, listName: ListName, item: ToDoItem) {
+        hub.addItemToList(user, listName, item)
+    }
 }

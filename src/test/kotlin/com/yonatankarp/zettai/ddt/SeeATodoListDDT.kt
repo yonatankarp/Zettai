@@ -5,15 +5,9 @@ import com.yonatankarp.zettai.ddt.actions.DomainOnlyActions
 import com.yonatankarp.zettai.ddt.actions.HttpActions
 import com.yonatankarp.zettai.ddt.actions.ZettaiActions
 import com.yonatankarp.zettai.ddt.actors.ToDoListOwner
+import java.time.LocalDate
 
-typealias ZettaiDDT = DomainDrivenTest<ZettaiActions>
-
-fun allActions() = setOf(
-    DomainOnlyActions(),
-    HttpActions()
-)
-
-class SeeATodoListDDT : ZettaiDDT(allActions()) {
+class SeeATodoListDDT : AbstractDDT() {
 
     private val frank by NamedActor(::ToDoListOwner)
     private val bob by NamedActor(::ToDoListOwner)

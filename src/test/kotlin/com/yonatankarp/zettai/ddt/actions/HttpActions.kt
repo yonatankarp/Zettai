@@ -1,23 +1,33 @@
 package com.yonatankarp.zettai.ddt.actions
 
 import com.ubertob.pesticide.core.*
-import com.yonatankarp.zettai.domain.ListName
-import com.yonatankarp.zettai.domain.ToDoList
-import com.yonatankarp.zettai.domain.ToDoListHub
-import com.yonatankarp.zettai.domain.User
+import com.yonatankarp.zettai.ddt.actors.ToDoListOwner
+import com.yonatankarp.zettai.domain.*
+import com.yonatankarp.zettai.ui.HtmlPage
+import com.yonatankarp.zettai.ui.toIsoLocalDate
+import com.yonatankarp.zettai.ui.toStatus
 import com.yonatankarp.zettai.webservice.Zettai
 import org.http4k.client.JettyClient
 import org.http4k.core.Method
 import org.http4k.core.Request
 import org.http4k.core.Response
+import org.http4k.core.Status
+import org.http4k.core.body.Form
+import org.http4k.core.body.toBody
 import org.http4k.server.Jetty
 import org.http4k.server.asServer
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
+import strikt.api.expectThat
+import strikt.assertions.isEqualTo
 
-class HttpActions(private val env: String = "local") : ZettaiActions {
+class HttpActions(env: String = "local") : ZettaiActions {
 
     override val protocol: DdtProtocol = Http(env)
 
-    private val hub = ToDoListHub(emptyMap())
+    private val fetcher = ToDoListFetcherFromMap(mutableMapOf())
+
+    private val hub = ToDoListHub(fetcher)
 
     private val zettaiPort = 8000 // different from the one on main
     private val server = Zettai(hub).asServer(Jetty(zettaiPort))
@@ -32,11 +42,62 @@ class HttpActions(private val env: String = "local") : ZettaiActions {
     override fun tearDown(): DdtActions<DdtProtocol> = also { server.stop() }
 
     private fun callZettai(method: Method, path: String): Response =
-        client(log(Request(
-            method, "http://localhost:$zettaiPort/$path")
-        ))
+        client(log(Request(method, "http://localhost:$zettaiPort/$path")))
 
-    override fun getToDoList(user: User, listName: ListName): ToDoList? = TODO("Not yet implemented")
+    override fun getToDoList(user: User, listName: ListName): ToDoList? {
+
+        val response = callZettai(Method.GET, todoListUrl(user, listName))
+
+        if (response.status == Status.NOT_FOUND)
+            return null
+
+        expectThat(response.status).isEqualTo(Status.OK)
+
+        val html = HtmlPage(response.bodyString())
+
+        val items = extractItemsFromPage(html)
+
+        return ToDoList(listName, items)
+    }
+
+    private fun HtmlPage.parse(): Document = Jsoup.parse(raw)
+
+    private fun extractItemsFromPage(html: HtmlPage): List<ToDoItem> =
+        html.parse()
+            .select("tr")
+            .toList()
+            .filter { it.select("td").size == 3 }
+            .map {
+                Triple(
+                    it.select("td")[0].text().orEmpty(),
+                    it.select("td")[1].text().toIsoLocalDate(),
+                    it.select("td")[2].text().orEmpty().toStatus()
+                )
+            }
+            .map { (name, date, status) -> ToDoItem(name, date, status) }
+
+    override fun addListItem(user: User, listName: ListName, item: ToDoItem) {
+        val response = submitToZettai(
+            todoListUrl(user, listName),
+            listOf(
+                "itemname" to item.description,
+                "itemdue" to item.dueDate?.toString()
+            )
+        )
+
+        expectThat(response.status).isEqualTo(Status.OK)
+    }
+
+    private fun submitToZettai(path: String, webForm: Form): Response =
+        client(
+            log(
+                Request(Method.POST, "http://localhost:$zettaiPort/$path")
+                    .body(webForm.toBody())
+            )
+        )
+
+    private fun todoListUrl(user: User, listName: ListName) =
+        "todo/${user.name}/${listName.name}"
 }
 
 // TODO: use real logger

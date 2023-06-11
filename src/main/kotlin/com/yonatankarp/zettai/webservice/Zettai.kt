@@ -3,17 +3,16 @@ package com.yonatankarp.zettai.webservice
 import com.yonatankarp.zettai.domain.*
 import com.yonatankarp.zettai.ui.HtmlPage
 import com.yonatankarp.zettai.ui.renderPage
-import com.yonatankarp.zettai.utils.andThen
+import com.yonatankarp.zettai.utils.andUnlessNull
 import org.http4k.core.HttpHandler
 import org.http4k.core.Method
 import org.http4k.core.Request
 import org.http4k.core.Response
+import org.http4k.core.Status.Companion.NOT_FOUND
 import org.http4k.core.Status.Companion.OK
 import org.http4k.routing.bind
 import org.http4k.routing.path
 import org.http4k.routing.routes
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 
 class Zettai(private val hub: ZettaiHub) : HttpHandler {
 
@@ -24,16 +23,17 @@ class Zettai(private val hub: ZettaiHub) : HttpHandler {
     override fun invoke(request: Request): Response =
         routes(request)
 
-
     /**
      * Process a ToDoList request.
      */
-    val processFunction = ::extractListData andThen
-            ::fetchListContent andThen
-            ::renderListPage andThen
+    val processUnlessNull = ::extractListData andUnlessNull
+            ::fetchListContent andUnlessNull
+            ::renderListPage andUnlessNull
             ::createResponse
 
-    private fun getToDoList(req: Request): Response = processFunction(req)
+    private fun getToDoList(req: Request): Response =
+        processUnlessNull(req)
+            ?: Response(NOT_FOUND, "Not found")
 
     private fun extractListData(req: Request): Pair<User, ListName> {
         val user = req.path("user").orEmpty()

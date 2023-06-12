@@ -29,7 +29,7 @@ class HttpActions(env: String = "local") : ZettaiActions {
 
     private val hub = ToDoListHub(fetcher)
 
-    private val zettaiPort = 8000 // different from the one on main
+    private val zettaiPort = 8001 // different from the one on main
     private val server = Zettai(hub).asServer(Jetty(zettaiPort))
 
     private val client = JettyClient()
@@ -40,6 +40,37 @@ class HttpActions(env: String = "local") : ZettaiActions {
     }
 
     override fun tearDown(): DdtActions<DdtProtocol> = also { server.stop() }
+
+    override fun addListItem(user: User, listName: ListName, item: ToDoItem) {
+        val response = submitToZettai(
+            todoListUrl(user, listName),
+            listOf(
+                "itemname" to item.description,
+                "itemdue" to item.dueDate?.toString()
+            )
+        )
+
+        expectThat(response.status).isEqualTo(Status.SEE_OTHER)
+    }
+
+    override fun ToDoListOwner.`starts with a list`(listName: String, items: List<String>) {
+        fetcher.assignListToUser(
+            user,
+            ToDoList(ListName.fromUntrustedOrThrow(listName), items.map { ToDoItem(it) })
+        )
+    }
+
+    override fun allUserLists(user: User): List<ListName> {
+        val response = callZettai(Method.GET, allUserListsUrl(user))
+
+        expectThat(response.status).isEqualTo(Status.OK)
+
+        val html = HtmlPage(response.bodyString())
+
+        val names = extractListNamesFromPage(html)
+
+        return names.map { name -> ListName.fromTrusted(name) }
+    }
 
     private fun callZettai(method: Method, path: String): Response =
         client(log(Request(method, "http://localhost:$zettaiPort/$path")))
@@ -76,17 +107,10 @@ class HttpActions(env: String = "local") : ZettaiActions {
             }
             .map { (name, date, status) -> ToDoItem(name, date, status) }
 
-    override fun addListItem(user: User, listName: ListName, item: ToDoItem) {
-        val response = submitToZettai(
-            todoListUrl(user, listName),
-            listOf(
-                "itemname" to item.description,
-                "itemdue" to item.dueDate?.toString()
-            )
-        )
-
-        expectThat(response.status).isEqualTo(Status.OK)
-    }
+    private fun extractListNamesFromPage(html: HtmlPage): List<String> =
+        html.parse()
+            .select("tr")
+            .mapNotNull { it.select("td").firstOrNull()?.text() }
 
     private fun submitToZettai(path: String, webForm: Form): Response =
         client(
@@ -96,8 +120,9 @@ class HttpActions(env: String = "local") : ZettaiActions {
             )
         )
 
-    private fun todoListUrl(user: User, listName: ListName) =
-        "todo/${user.name}/${listName.name}"
+    private fun todoListUrl(user: User, listName: ListName) = "todo/${user.name}/${listName.name}"
+
+    private fun allUserListsUrl(user: User) = "todo/${user.name}"
 }
 
 // TODO: use real logger

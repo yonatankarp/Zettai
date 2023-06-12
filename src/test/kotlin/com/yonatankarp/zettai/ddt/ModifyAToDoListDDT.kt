@@ -11,7 +11,7 @@ class ModifyAToDoListDDT : AbstractDDT() {
     fun `the list owner can add new items`() = ddtScenario {
         setUp {
             ann.`starts with a list`("diy", emptyList())
-        }.thenPlay (
+        }.thenPlay(
             ann.`can add #item to #listname`("paint the shelf", "diy"),
             ann.`can add #item to #listname`("fix the gate", "diy"),
             ann.`can add #item to #listname`("change the lock", "diy"),

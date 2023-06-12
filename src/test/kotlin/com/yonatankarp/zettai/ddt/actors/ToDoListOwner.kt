@@ -6,15 +6,12 @@ import com.yonatankarp.zettai.domain.ListName
 import com.yonatankarp.zettai.domain.ToDoItem
 import com.yonatankarp.zettai.domain.ToDoList
 import com.yonatankarp.zettai.domain.User
-import org.junit.jupiter.api.assertThrows
-import org.opentest4j.AssertionFailedError
 import strikt.api.Assertion
 import strikt.api.expectThat
-import strikt.assertions.containsExactlyInAnyOrder
-import strikt.assertions.isNotNull
+import strikt.assertions.*
 
 data class ToDoListOwner(override val name: String) : DdtActor<ZettaiActions>() {
-    private val user = User(name)
+    val user = User(name)
 
     fun `can add #item to #listname`(itemName: String, listName: String) =
         step(itemName, listName) {
@@ -35,14 +32,23 @@ data class ToDoListOwner(override val name: String) : DdtActor<ZettaiActions>() 
                 .containsExactlyInAnyOrder(expectedItems)
         }
 
-    fun `cannot see #listname`(listName: String) =
-        step(listName) {
-            assertThrows<AssertionFailedError> { getToDoList(user, ListName(listName)) }
-        }
-
-    fun `starts with a list`(listName: String, listItems: List<String>) {
-//        TODO("Not yet implemented")
+    fun `cannot see #listname`(listName: String) = step(listName) {
+        val list = getToDoList(user, ListName.fromUntrustedOrThrow(listName))
+        expectThat(list).isNull()
     }
+
+    fun `cannot see any list`() = step {
+        val lists = allUserLists(user)
+        expectThat(lists).isEmpty()
+    }
+
+    fun `can see the lists #listNames`(expectedLists: Set<String>) =
+        step(expectedLists) {
+            val lists = allUserLists(user)
+            expectThat(lists)
+                .map (ListName::name)
+                .containsExactly(expectedLists)
+        }
 
     private val Assertion.Builder<ToDoList>.itemNames
         get() = get { items.map { it.description } }

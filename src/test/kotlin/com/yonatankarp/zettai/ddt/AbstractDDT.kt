@@ -9,7 +9,7 @@ typealias ZettaiDDT = DomainDrivenTest<ZettaiActions>
 
 fun allActions() = setOf(
     DomainOnlyActions(),
-    HttpActions()
+    HttpActions(),
 )
 
 abstract class AbstractDDT : ZettaiDDT(allActions())

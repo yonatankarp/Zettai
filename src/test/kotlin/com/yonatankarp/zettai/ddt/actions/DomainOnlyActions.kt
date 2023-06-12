@@ -4,7 +4,13 @@ import com.ubertob.pesticide.core.DdtProtocol
 import com.ubertob.pesticide.core.DomainOnly
 import com.ubertob.pesticide.core.Ready
 import com.yonatankarp.zettai.ddt.actors.ToDoListOwner
-import com.yonatankarp.zettai.domain.*
+import com.yonatankarp.zettai.domain.ListName
+import com.yonatankarp.zettai.domain.ToDoItem
+import com.yonatankarp.zettai.domain.ToDoList
+import com.yonatankarp.zettai.domain.ToDoListFetcherFromMap
+import com.yonatankarp.zettai.domain.ToDoListHub
+import com.yonatankarp.zettai.domain.ToDoListStore
+import com.yonatankarp.zettai.domain.User
 
 class DomainOnlyActions : ZettaiActions {
 

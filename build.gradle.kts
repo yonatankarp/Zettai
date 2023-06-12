@@ -1,9 +1,11 @@
+import com.diffplug.gradle.spotless.SpotlessExtension
+import org.gradle.api.tasks.testing.logging.TestLogEvent.FAILED
 import org.gradle.api.tasks.testing.logging.TestLogEvent.PASSED
 import org.gradle.api.tasks.testing.logging.TestLogEvent.SKIPPED
-import org.gradle.api.tasks.testing.logging.TestLogEvent.FAILED
 
 plugins {
     kotlin("jvm") version "1.8.22"
+    id("com.diffplug.spotless") version "6.18.0"
 }
 
 repositories {
@@ -35,7 +37,7 @@ dependencies {
     testImplementation("com.ubertob.pesticide:pesticide-core:$pesticideVersion")
     testImplementation("io.strikt:strikt-core:$striktVersion")
     testImplementation("org.http4k:http4k-client-jetty:$http4kVersion")
-    testImplementation("org.jsoup:jsoup:${jsoupVersion}")
+    testImplementation("org.jsoup:jsoup:$jsoupVersion")
 }
 
 tasks.withType<Test>().configureEach {
@@ -54,5 +56,16 @@ tasks {
 
         // start tests every time, even when code not changed
         outputs.upToDateWhen { false }
+    }
+}
+
+configure<SpotlessExtension> {
+    kotlin {
+        // see https://github.com/shyiko/ktlint#standard-rules
+        ktlint()
+    }
+    kotlinGradle {
+        trimTrailingWhitespace()
+        ktlint()
     }
 }

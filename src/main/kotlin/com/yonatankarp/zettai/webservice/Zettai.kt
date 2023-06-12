@@ -1,11 +1,18 @@
 package com.yonatankarp.zettai.webservice
 
-import com.yonatankarp.zettai.domain.*
+import com.yonatankarp.zettai.domain.ListName
+import com.yonatankarp.zettai.domain.ToDoItem
+import com.yonatankarp.zettai.domain.ToDoList
+import com.yonatankarp.zettai.domain.User
+import com.yonatankarp.zettai.domain.ZettaiHub
 import com.yonatankarp.zettai.ui.HtmlPage
 import com.yonatankarp.zettai.ui.renderListsPage
 import com.yonatankarp.zettai.ui.renderPage
 import com.yonatankarp.zettai.utils.andUnlessNull
-import org.http4k.core.*
+import org.http4k.core.HttpHandler
+import org.http4k.core.Method
+import org.http4k.core.Request
+import org.http4k.core.Response
 import org.http4k.core.Status.Companion.BAD_REQUEST
 import org.http4k.core.Status.Companion.NOT_FOUND
 import org.http4k.core.Status.Companion.OK
@@ -29,9 +36,9 @@ class Zettai(private val hub: ZettaiHub) : HttpHandler {
      * Process a ToDoList request.
      */
     val processUnlessNull = ::extractListData andUnlessNull
-            ::fetchListContent andUnlessNull
-            ::renderListPage andUnlessNull
-            ::toResponse
+        ::fetchListContent andUnlessNull
+        ::renderListPage andUnlessNull
+        ::toResponse
 
     private fun getToDoList(req: Request): Response =
         processUnlessNull(req)
@@ -57,7 +64,7 @@ class Zettai(private val hub: ZettaiHub) : HttpHandler {
         val item = request.extractItem() ?: return Response(BAD_REQUEST)
         return hub.addItemToList(user, listName, item)
             ?.let { Response(SEE_OTHER).header("Location", "/todo/${user.name}/${listName.name}") } ?: Response(
-            NOT_FOUND
+            NOT_FOUND,
         )
     }
 

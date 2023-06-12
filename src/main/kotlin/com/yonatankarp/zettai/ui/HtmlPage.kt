@@ -52,7 +52,7 @@ fun renderPage(user: User, list: ToDoList): HtmlPage =
         </div>
         </body>
         </html>
-    """.trimIndent()
+        """.trimIndent(),
     )
 
 private fun ToDoList.renderItems() =
@@ -62,7 +62,8 @@ private fun renderItem(it: ToDoItem): String = """<tr>
               <td>${it.description}</td>
               <td>${it.dueDate?.toIsoString().orEmpty()}</td>
               <td>${it.status}</td>
-            </tr>""".trimIndent()
+            </tr>
+""".trimIndent()
 
 fun LocalDate.toIsoString(): String = format(DateTimeFormatter.ISO_LOCAL_DATE)
 

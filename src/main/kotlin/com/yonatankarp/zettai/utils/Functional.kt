@@ -20,7 +20,6 @@ infix fun <A : Any, B : Any, C : Any> FUN<A, B?>.andUnlessNull(other: FUN<B, C?>
 fun <U : Any> CharSequence?.unlessNullOrEmpty(f: (CharSequence) -> U): U? =
     if (isNullOrEmpty()) null else f(this)
 
-
 /**
  * A debug utility function to print the value of a variable.
  */

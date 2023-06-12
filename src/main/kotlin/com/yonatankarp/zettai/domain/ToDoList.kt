@@ -5,7 +5,12 @@ import java.time.LocalDate
 /**
  * A ToDoList contains a list name and a list of ToDoItems
  */
-data class ToDoList(val listName: ListName, val items: List<ToDoItem>)
+data class ToDoList(val listName: ListName, val items: List<ToDoItem>) {
+    companion object {
+        fun build(listName: String, items: List<String>): ToDoList =
+            ToDoList(ListName.fromUntrustedOrThrow(listName), items.map { ToDoItem(it) })
+    }
+}
 
 /**
  * A ToDoItem contains a description string
@@ -17,6 +22,8 @@ data class ListName internal constructor(val name: String) {
         fun fromUntrusted(name: String): ListName? =
             if (name.matches(validUrlPattern) && name.length in 1..40) fromTrusted(name)
             else null
+        fun fromUntrustedOrThrow(name: String): ListName =
+            fromUntrusted(name) ?: throw IllegalArgumentException("Invalid list name $name")
     }
 }
 

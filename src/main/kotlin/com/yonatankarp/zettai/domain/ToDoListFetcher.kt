@@ -1,6 +1,10 @@
 package com.yonatankarp.zettai.domain
 
-typealias ToDoListFetcher = (User, ListName) -> ToDoList?
+interface ToDoListFetcher {
+    fun get(user: User, listName: ListName): ToDoList?
+
+    fun getAll(user: User): List<ListName>?
+}
 
 interface ToDoListUpdatableFetcher : ToDoListFetcher {
     fun assignListToUser(user: User, list: ToDoList): ToDoList?

@@ -14,7 +14,7 @@ fun randomUser() =
 
 fun randomToDoList(): ToDoList = ToDoList(
     randomListName(),
-    itemsGenerator().take(Random.nextInt(5) + 1).toList()
+    itemsGenerator().take(Random.nextInt(5) + 1).toList(),
 )
 
 fun randomListName(): ListName =

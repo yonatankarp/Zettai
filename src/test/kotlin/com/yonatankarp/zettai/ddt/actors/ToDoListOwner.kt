@@ -8,7 +8,12 @@ import com.yonatankarp.zettai.domain.ToDoList
 import com.yonatankarp.zettai.domain.User
 import strikt.api.Assertion
 import strikt.api.expectThat
-import strikt.assertions.*
+import strikt.assertions.containsExactly
+import strikt.assertions.containsExactlyInAnyOrder
+import strikt.assertions.isEmpty
+import strikt.assertions.isNotNull
+import strikt.assertions.isNull
+import strikt.assertions.map
 
 data class ToDoListOwner(override val name: String) : DdtActor<ZettaiActions>() {
     val user = User(name)
@@ -21,7 +26,7 @@ data class ToDoListOwner(override val name: String) : DdtActor<ZettaiActions>() 
 
     fun `can see #listname with #itemnames`(
         listName: String,
-        expectedItems: List<String>
+        expectedItems: List<String>,
     ) =
         step(listName, expectedItems) {
             val list = getToDoList(user, ListName(listName))
@@ -46,7 +51,7 @@ data class ToDoListOwner(override val name: String) : DdtActor<ZettaiActions>() 
         step(expectedLists) {
             val lists = allUserLists(user)
             expectThat(lists)
-                .map (ListName::name)
+                .map(ListName::name)
                 .containsExactly(expectedLists)
         }
 

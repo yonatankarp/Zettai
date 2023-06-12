@@ -10,7 +10,7 @@ import strikt.assertions.isNull
 
 class ToDoListHubTest {
 
-    private fun emptyStore(): ToDoListStore =  mutableMapOf()
+    private fun emptyStore(): ToDoListStore = mutableMapOf()
 
     private val fetcher = ToDoListFetcherFromMap(emptyStore())
 

@@ -1,8 +1,17 @@
 package com.yonatankarp.zettai.ddt.actions
 
-import com.ubertob.pesticide.core.*
+import com.ubertob.pesticide.core.DdtActions
+import com.ubertob.pesticide.core.DdtProtocol
+import com.ubertob.pesticide.core.DomainSetUp
+import com.ubertob.pesticide.core.Http
+import com.ubertob.pesticide.core.Ready
 import com.yonatankarp.zettai.ddt.actors.ToDoListOwner
-import com.yonatankarp.zettai.domain.*
+import com.yonatankarp.zettai.domain.ListName
+import com.yonatankarp.zettai.domain.ToDoItem
+import com.yonatankarp.zettai.domain.ToDoList
+import com.yonatankarp.zettai.domain.ToDoListFetcherFromMap
+import com.yonatankarp.zettai.domain.ToDoListHub
+import com.yonatankarp.zettai.domain.User
 import com.yonatankarp.zettai.ui.HtmlPage
 import com.yonatankarp.zettai.ui.toIsoLocalDate
 import com.yonatankarp.zettai.ui.toStatus
@@ -46,8 +55,8 @@ class HttpActions(env: String = "local") : ZettaiActions {
             todoListUrl(user, listName),
             listOf(
                 "itemname" to item.description,
-                "itemdue" to item.dueDate?.toString()
-            )
+                "itemdue" to item.dueDate?.toString(),
+            ),
         )
 
         expectThat(response.status).isEqualTo(Status.SEE_OTHER)
@@ -56,7 +65,7 @@ class HttpActions(env: String = "local") : ZettaiActions {
     override fun ToDoListOwner.`starts with a list`(listName: String, items: List<String>) {
         fetcher.assignListToUser(
             user,
-            ToDoList(ListName.fromUntrustedOrThrow(listName), items.map { ToDoItem(it) })
+            ToDoList(ListName.fromUntrustedOrThrow(listName), items.map { ToDoItem(it) }),
         )
     }
 
@@ -76,11 +85,11 @@ class HttpActions(env: String = "local") : ZettaiActions {
         client(log(Request(method, "http://localhost:$zettaiPort/$path")))
 
     override fun getToDoList(user: User, listName: ListName): ToDoList? {
-
         val response = callZettai(Method.GET, todoListUrl(user, listName))
 
-        if (response.status == Status.NOT_FOUND)
+        if (response.status == Status.NOT_FOUND) {
             return null
+        }
 
         expectThat(response.status).isEqualTo(Status.OK)
 
@@ -102,7 +111,7 @@ class HttpActions(env: String = "local") : ZettaiActions {
                 Triple(
                     it.select("td")[0].text().orEmpty(),
                     it.select("td")[1].text().toIsoLocalDate(),
-                    it.select("td")[2].text().orEmpty().toStatus()
+                    it.select("td")[2].text().orEmpty().toStatus(),
                 )
             }
             .map { (name, date, status) -> ToDoItem(name, date, status) }
@@ -116,8 +125,8 @@ class HttpActions(env: String = "local") : ZettaiActions {
         client(
             log(
                 Request(Method.POST, "http://localhost:$zettaiPort/$path")
-                    .body(webForm.toBody())
-            )
+                    .body(webForm.toBody()),
+            ),
         )
 
     private fun todoListUrl(user: User, listName: ListName) = "todo/${user.name}/${listName.name}"

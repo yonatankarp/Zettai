@@ -20,8 +20,11 @@ data class ListName internal constructor(val name: String) {
         private val validUrlPattern = "[A-Za-z0-9-]+".toRegex()
         fun fromTrusted(name: String): ListName = ListName(name)
         fun fromUntrusted(name: String): ListName? =
-            if (name.matches(validUrlPattern) && name.length in 1..40) fromTrusted(name)
-            else null
+            if (name.matches(validUrlPattern) && name.length in 1..40) {
+                fromTrusted(name)
+            } else {
+                null
+            }
         fun fromUntrustedOrThrow(name: String): ListName =
             fromUntrusted(name) ?: throw IllegalArgumentException("Invalid list name $name")
     }
@@ -33,7 +36,7 @@ data class ListName internal constructor(val name: String) {
 data class ToDoItem(
     val description: String,
     val dueDate: LocalDate? = null,
-    val status: ToDoStatus = ToDoStatus.Todo
+    val status: ToDoStatus = ToDoStatus.Todo,
 )
 
 /**
@@ -43,5 +46,5 @@ enum class ToDoStatus {
     Todo,
     InProgress,
     Done,
-    Blocked
+    Blocked,
 }

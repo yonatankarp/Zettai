@@ -1,11 +1,7 @@
 package com.yonatankarp.zettai.ddt
 
-import com.ubertob.pesticide.core.*
-import com.yonatankarp.zettai.ddt.actions.DomainOnlyActions
-import com.yonatankarp.zettai.ddt.actions.HttpActions
-import com.yonatankarp.zettai.ddt.actions.ZettaiActions
+import com.ubertob.pesticide.core.DDT
 import com.yonatankarp.zettai.ddt.actors.ToDoListOwner
-import java.time.LocalDate
 
 class SeeATodoListDDT : AbstractDDT() {
 
@@ -25,7 +21,7 @@ class SeeATodoListDDT : AbstractDDT() {
             bob.`starts with a list`(gardenListName, gardenItems)
         }.thenPlay(
             frank.`can see #listname with #itemnames`(shoppingListName, shoppingItems),
-            bob.`can see #listname with #itemnames`(gardenListName, gardenItems)
+            bob.`can see #listname with #itemnames`(gardenListName, gardenItems),
         )
     }
 
@@ -36,7 +32,7 @@ class SeeATodoListDDT : AbstractDDT() {
             bob.`starts with a list`(gardenListName, gardenItems)
         }.thenPlay(
             frank.`cannot see #listname`(gardenListName),
-            bob.`cannot see #listname`(shoppingListName)
+            bob.`cannot see #listname`(shoppingListName),
         )
     }
 }

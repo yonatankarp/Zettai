@@ -41,15 +41,15 @@ fun renderListsPage(user: User, lists: List<ListName>): HtmlPage = HtmlPage(
         </div>
         </body>
         </html>
-    """.trimIndent()
+    """.trimIndent(),
 )
 
 private fun List<ListName>.render(user: User): String =
     joinToString(separator = "") { renderListName(user, it) }
 
-
 private fun renderListName(user: User, listName: ListName): String = """<tr>
               <td><a href="${user.name}/${listName.name}">${listName.name}</a></td>
               <td>open</td>
               <td>[archive] [rename] [freeze]</td>
-            </tr>""".trimIndent()
+            </tr>
+""".trimIndent()

@@ -4,14 +4,14 @@ import com.ubertob.pesticide.core.DDT
 import com.yonatankarp.zettai.ddt.actions.HttpActions
 import com.yonatankarp.zettai.ddt.actors.ToDoListOwner
 
-class UserListPageDDT : ZettaiDDT(setOf(HttpActions())) {// AbstractDDT() {
+class UserListPageDDT : ZettaiDDT(setOf(HttpActions())) { // AbstractDDT() {
     private val carol by NamedActor(::ToDoListOwner)
     private val emma by NamedActor(::ToDoListOwner)
 
     @DDT
     fun `new users have no lists`() = ddtScenario {
         play(
-            emma.`cannot see any list`()
+            emma.`cannot see any list`(),
         )
     }
 
@@ -22,7 +22,7 @@ class UserListPageDDT : ZettaiDDT(setOf(HttpActions())) {// AbstractDDT() {
             carol.`starts with some lists`(expectedLists)
         }.thenPlay(
             carol.`can see the lists #listNames`(expectedLists.keys),
-            emma.`cannot see any list`()
+            emma.`cannot see any list`(),
         )
     }
 
@@ -30,6 +30,6 @@ class UserListPageDDT : ZettaiDDT(setOf(HttpActions())) {// AbstractDDT() {
         mapOf(
             "work" to listOf("meeting", "spreadsheet"),
             "home" to listOf("buy food"),
-            "friends" to listOf("but present", "book restaurant")
+            "friends" to listOf("but present", "book restaurant"),
         )
 }

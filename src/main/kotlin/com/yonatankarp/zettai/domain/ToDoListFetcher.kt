@@ -8,4 +8,11 @@ interface ToDoListFetcher {
 
 interface ToDoListUpdatableFetcher : ToDoListFetcher {
     fun assignListToUser(user: User, list: ToDoList): ToDoList?
+
+    fun addItemToList(user: User, listName: ListName, item: ToDoItem) {
+        get(user, listName)?.run {
+            val newList = copy(items = items.filterNot { it.description == item.description } + item)
+            assignListToUser(user, newList)
+        }
+    }
 }

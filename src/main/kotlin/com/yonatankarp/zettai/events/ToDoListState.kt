@@ -20,7 +20,7 @@ object InitialState : ToDoListState() {
     override fun combine(event: ToDoListEvent): ToDoListState =
         when (event) {
             is ListCreated -> create(event.id, event.owner, event.name, emptyList())
-            else -> this //ignore other events
+            else -> this // ignore other events
         }
 }
 data class ActiveToDoList internal constructor(

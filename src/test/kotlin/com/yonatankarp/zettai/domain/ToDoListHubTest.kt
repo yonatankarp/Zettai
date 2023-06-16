@@ -1,7 +1,11 @@
 package com.yonatankarp.zettai.domain
 
+import com.yonatankarp.zettai.commands.ToDoListCommandHandler
+import com.yonatankarp.zettai.domain.generators.emptyStore
 import com.yonatankarp.zettai.domain.generators.randomToDoList
 import com.yonatankarp.zettai.domain.generators.randomUser
+import com.yonatankarp.zettai.events.ToDoListEventStore
+import com.yonatankarp.zettai.events.ToDoListEventStreamerInMemory
 import org.junit.jupiter.api.Test
 import strikt.api.expect
 import strikt.api.expectThat
@@ -10,11 +14,12 @@ import strikt.assertions.isNull
 
 class ToDoListHubTest {
 
-    private fun emptyStore(): ToDoListStore = mutableMapOf()
-
     private val fetcher = ToDoListFetcherFromMap(emptyStore())
+    private val streamer = ToDoListEventStreamerInMemory()
+    private val eventStore = ToDoListEventStore(streamer)
 
-    private val hub = ToDoListHub(fetcher)
+    private val cmdHandler = ToDoListCommandHandler(eventStore, fetcher)
+    private val hub = ToDoListHub(fetcher, cmdHandler, eventStore)
 
     @Test
     fun `get list by user and name`() {

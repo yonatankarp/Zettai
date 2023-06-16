@@ -8,6 +8,14 @@ class ModifyAToDoListDDT : AbstractDDT() {
     private val ann by NamedActor(::ToDoListOwner)
 
     @DDT
+    fun `users can create a new list`() = ddtScenario {
+        play(
+            ann.`can create a new list called #listname`("mylist"),
+            ann.`can see #listname with #itemnames`("mylist", emptyList())
+        )
+    }
+
+    @DDT
     fun `the list owner can add new items`() = ddtScenario {
         setUp {
             ann.`starts with a list`("diy", emptyList())
@@ -15,7 +23,11 @@ class ModifyAToDoListDDT : AbstractDDT() {
             ann.`can add #item to #listname`("paint the shelf", "diy"),
             ann.`can add #item to #listname`("fix the gate", "diy"),
             ann.`can add #item to #listname`("change the lock", "diy"),
-            ann.`can see #listname with #itemnames`("diy", listOf("paint the shelf", "fix the gate", "change the lock")),
+            ann.`can see #listname with #itemnames`(
+                "diy", listOf(
+                    "fix the gate", "paint the shelf", "change the lock"
+                )
+            )
         )
     }
 }

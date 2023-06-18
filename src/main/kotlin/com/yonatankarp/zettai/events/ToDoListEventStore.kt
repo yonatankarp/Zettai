@@ -15,7 +15,6 @@ class ToDoListEventStore(
     override fun retrieveByName(user: User, listName: ListName): ToDoListState? =
         eventStreamer.retrieveIdFromName(user, listName)
             ?.let(::retrieveById)
-            ?: InitialState
 
     override fun invoke(events: Iterable<ToDoListEvent>): List<ToDoListEvent> =
         eventStreamer.store(events)

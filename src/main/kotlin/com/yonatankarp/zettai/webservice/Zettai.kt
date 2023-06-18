@@ -18,6 +18,7 @@ import org.http4k.core.HttpHandler
 import org.http4k.core.Method
 import org.http4k.core.Request
 import org.http4k.core.Response
+import org.http4k.core.Status
 import org.http4k.core.Status.Companion.BAD_REQUEST
 import org.http4k.core.Status.Companion.NOT_FOUND
 import org.http4k.core.Status.Companion.OK
@@ -43,9 +44,9 @@ class Zettai(private val hub: ZettaiHub) : HttpHandler {
         val listName = request.extractListName().onFailure { return Response(BAD_REQUEST).body(it.msg) }
 
         return hub.getList(user, listName)
-            ?.let { renderListPage(user, it) }
-            ?.let(::toResponse)
-            ?: Response(NOT_FOUND)
+            .transform { renderListPage(user, it) }
+            .transform(::toResponse)
+            .recover { Response(NOT_FOUND).body(it.msg) }
     }
 
     private fun addNewItem(request: Request): Response {
@@ -54,16 +55,16 @@ class Zettai(private val hub: ZettaiHub) : HttpHandler {
         val item = request.extractItem().onFailure { return Response(BAD_REQUEST).body(it.msg) }
 
         return hub.handle(AddToDoItem(user, listName, item))
-            ?.let { Response(SEE_OTHER).header("Location", "/todo/${user.name}/${listName.name}") }
-            ?: Response(NOT_FOUND)
+            .transform { Response(SEE_OTHER).header("Location", "/todo/${user.name}/${listName.name}") }
+            .recover { Response(Status.UNPROCESSABLE_ENTITY).body(it.msg) }
     }
 
     private fun getAllLists(request: Request): Response {
         val user = request.extractUser().onFailure { return Response(BAD_REQUEST).body(it.msg) }
         return hub.getLists(user)
-            ?.let { renderListsPage(user, it) }
-            ?.let(::toResponse)
-            ?: Response(BAD_REQUEST)
+            .transform { renderListsPage(user, it) }
+            .transform(::toResponse)
+            .recover { Response(NOT_FOUND).body(it.msg) }
     }
 
     private fun createNewList(request: Request): Response {
@@ -72,8 +73,8 @@ class Zettai(private val hub: ZettaiHub) : HttpHandler {
             .onFailure { return Response(BAD_REQUEST).body("missing listname in form") }
 
         return hub.handle(CreateToDoList(user, listName))
-            ?.let { Response(SEE_OTHER).header("Location", "/todo/${user.name}") }
-            ?: Response(BAD_REQUEST)
+            .transform { Response(SEE_OTHER).header("Location", "/todo/${user.name}") }
+            .recover { Response(Status.UNPROCESSABLE_ENTITY).body(it.msg) }
     }
 
     private fun Request.extractUser(): ZettaiOutcome<User> =

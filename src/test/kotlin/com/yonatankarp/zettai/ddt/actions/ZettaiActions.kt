@@ -7,6 +7,7 @@ import com.yonatankarp.zettai.domain.ListName
 import com.yonatankarp.zettai.domain.ToDoItem
 import com.yonatankarp.zettai.domain.ToDoList
 import com.yonatankarp.zettai.domain.User
+import com.yonatankarp.zettai.domain.ZettaiOutcome
 
 interface ZettaiActions : DdtActions<DdtProtocol> {
     fun ToDoListOwner.`starts with a list`(listName: String, items: List<String>)
@@ -15,8 +16,8 @@ interface ZettaiActions : DdtActions<DdtProtocol> {
             `starts with a list`(listName, items)
         }
 
-    fun getToDoList(user: User, listName: ListName): ToDoList?
+    fun getToDoList(user: User, listName: ListName): ZettaiOutcome<ToDoList>
     fun addListItem(user: User, listName: ListName, item: ToDoItem)
-    fun allUserLists(user: User): List<ListName>
+    fun allUserLists(user: User): ZettaiOutcome<List<ListName>>
     fun createList(user: User, listName: ListName)
 }

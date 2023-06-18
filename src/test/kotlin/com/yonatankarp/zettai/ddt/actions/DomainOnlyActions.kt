@@ -13,6 +13,7 @@ import com.yonatankarp.zettai.domain.ToDoList
 import com.yonatankarp.zettai.domain.ToDoListFetcherFromMap
 import com.yonatankarp.zettai.domain.ToDoListHub
 import com.yonatankarp.zettai.domain.User
+import com.yonatankarp.zettai.domain.ZettaiOutcome
 import com.yonatankarp.zettai.domain.generators.emptyStore
 import com.yonatankarp.zettai.events.ToDoListEventStore
 import com.yonatankarp.zettai.events.ToDoListEventStreamerInMemory
@@ -43,13 +44,16 @@ class DomainOnlyActions : ZettaiActions {
         expectThat(created).hasSize(items.size)
     }
 
-    override fun getToDoList(user: User, listName: ListName): ToDoList? = hub.getList(user, listName)
+    override fun getToDoList(user: User, listName: ListName): ZettaiOutcome<ToDoList> =
+        hub.getList(user, listName)
 
     override fun addListItem(user: User, listName: ListName, item: ToDoItem) {
         hub.handle(AddToDoItem(user, listName, item))
     }
 
-    override fun allUserLists(user: User): List<ListName> = hub.getLists(user) ?: emptyList()
+    override fun allUserLists(user: User): ZettaiOutcome<List<ListName>> =
+        hub.getLists(user)
+
     override fun createList(user: User, listName: ListName) {
         hub.handle(CreateToDoList(user, listName))
     }

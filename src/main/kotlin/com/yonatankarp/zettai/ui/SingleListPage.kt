@@ -46,7 +46,7 @@ fun renderListPage(user: User, todoList: ToDoList): HtmlPage =
         </div>
         </body>
         </html>
-    """.trimIndent()
+        """.trimIndent(),
     )
 
 private fun List<ToDoItem>.renderItems() =
@@ -56,4 +56,5 @@ private fun renderItem(it: ToDoItem): String = """<tr>
               <td>${it.description}</td>
               <td>${it.dueDate?.toIsoString().orEmpty()}</td>
               <td>${it.status}</td>
-            </tr>""".trimIndent()
+            </tr>
+""".trimIndent()

@@ -42,8 +42,11 @@ data class ToDoItem(
     companion object {
         fun fromTrusted(description: String): ToDoItem = ToDoItem(description)
         fun fromUntrusted(description: String): ToDoItem? =
-            if (description.length in 1..40) fromTrusted(description)
-            else null
+            if (description.length in 1..40) {
+                fromTrusted(description)
+            } else {
+                null
+            }
     }
 }
 

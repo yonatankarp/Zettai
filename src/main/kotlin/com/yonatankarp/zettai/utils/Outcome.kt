@@ -22,7 +22,6 @@ sealed class Outcome<out E : OutcomeError, out T> {
                 is Success -> value
                 is Failure -> recoverError(error)
             }
-
     }
 }
 

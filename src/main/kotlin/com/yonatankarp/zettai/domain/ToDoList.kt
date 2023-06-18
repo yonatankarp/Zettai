@@ -25,6 +25,7 @@ data class ListName internal constructor(val name: String) {
             } else {
                 null
             }
+
         fun fromUntrustedOrThrow(name: String): ListName =
             fromUntrusted(name) ?: throw IllegalArgumentException("Invalid list name $name")
     }
@@ -37,7 +38,14 @@ data class ToDoItem(
     val description: String,
     val dueDate: LocalDate? = null,
     val status: ToDoStatus = ToDoStatus.Todo,
-)
+) {
+    companion object {
+        fun fromTrusted(description: String): ToDoItem = ToDoItem(description)
+        fun fromUntrusted(description: String): ToDoItem? =
+            if (description.length in 1..40) fromTrusted(description)
+            else null
+    }
+}
 
 /**
  * The status of a given ToDoItem

@@ -2,13 +2,18 @@ package com.yonatankarp.zettai.webservice
 
 import com.yonatankarp.zettai.commands.AddToDoItem
 import com.yonatankarp.zettai.commands.CreateToDoList
+import com.yonatankarp.zettai.domain.InvalidRequestError
 import com.yonatankarp.zettai.domain.ListName
 import com.yonatankarp.zettai.domain.ToDoItem
 import com.yonatankarp.zettai.domain.User
 import com.yonatankarp.zettai.domain.ZettaiHub
+import com.yonatankarp.zettai.domain.ZettaiOutcome
 import com.yonatankarp.zettai.ui.HtmlPage
 import com.yonatankarp.zettai.ui.renderListPage
 import com.yonatankarp.zettai.ui.renderListsPage
+import com.yonatankarp.zettai.utils.Outcome.Companion.recover
+import com.yonatankarp.zettai.utils.failIfNull
+import com.yonatankarp.zettai.utils.onFailure
 import org.http4k.core.HttpHandler
 import org.http4k.core.Method
 import org.http4k.core.Request
@@ -34,8 +39,8 @@ class Zettai(private val hub: ZettaiHub) : HttpHandler {
     override fun invoke(request: Request): Response = routes(request)
 
     private fun getToDoList(request: Request): Response {
-        val user = request.extractUser() ?: return Response(BAD_REQUEST)
-        val listName = request.extractListName() ?: return Response(BAD_REQUEST)
+        val user = request.extractUser().onFailure { return Response(BAD_REQUEST).body(it.msg) }
+        val listName = request.extractListName().onFailure { return Response(BAD_REQUEST).body(it.msg) }
 
         return hub.getList(user, listName)
             ?.let { renderListPage(user, it) }
@@ -44,17 +49,17 @@ class Zettai(private val hub: ZettaiHub) : HttpHandler {
     }
 
     private fun addNewItem(request: Request): Response {
-        val user = request.extractUser() ?: return Response(BAD_REQUEST)
-        val listName = request.extractListName() ?: return Response(BAD_REQUEST)
-        return request.extractItem()
-            ?.let { AddToDoItem(user, listName, it) }
-            ?.let(hub::handle)
+        val user = request.extractUser().recover { anonymousUser() }
+        val listName = request.extractListName().onFailure { return Response(BAD_REQUEST).body(it.msg) }
+        val item = request.extractItem().onFailure { return Response(BAD_REQUEST).body(it.msg) }
+
+        return hub.handle(AddToDoItem(user, listName, item))
             ?.let { Response(SEE_OTHER).header("Location", "/todo/${user.name}/${listName.name}") }
             ?: Response(NOT_FOUND)
     }
 
     private fun getAllLists(request: Request): Response {
-        val user = request.extractUser() ?: return Response(BAD_REQUEST)
+        val user = request.extractUser().onFailure { return Response(BAD_REQUEST).body(it.msg) }
         return hub.getLists(user)
             ?.let { renderListsPage(user, it) }
             ?.let(::toResponse)
@@ -62,21 +67,39 @@ class Zettai(private val hub: ZettaiHub) : HttpHandler {
     }
 
     private fun createNewList(request: Request): Response {
-        val user = request.extractUser()
-            ?: return Response(BAD_REQUEST).body("missing user in path")
+        val user = request.extractUser().recover { anonymousUser() }
         val listName = request.extractListNameFromForm("listname")
-            ?: return Response(BAD_REQUEST).body("missing listname in form")
+            .onFailure { return Response(BAD_REQUEST).body("missing listname in form") }
 
         return hub.handle(CreateToDoList(user, listName))
             ?.let { Response(SEE_OTHER).header("Location", "/todo/${user.name}") }
             ?: Response(BAD_REQUEST)
     }
 
-    private fun Request.extractUser(): User? = path("user")?.let(::User)
-    private fun Request.extractListName(): ListName? = path("list")?.let(::ListName)
-    private fun Request.extractItem(): ToDoItem? = form("itemname")?.let(::ToDoItem)
-    private fun Request.extractListNameFromForm(formName: String): ListName? =
-        form(formName)?.let(ListName.Companion::fromUntrusted)
+    private fun Request.extractUser(): ZettaiOutcome<User> =
+        path("user")
+            .failIfNull(InvalidRequestError("User not present"))
+            .transform(::User)
+
+    private fun Request.extractListName(): ZettaiOutcome<ListName> =
+        path("list")
+            .orEmpty()
+            .let(ListName::fromUntrusted)
+            .failIfNull(InvalidRequestError("Invalid list name in path: $this"))
+
+    private fun Request.extractItem(): ZettaiOutcome<ToDoItem> =
+        form("itemname")
+            .orEmpty()
+            .let(ToDoItem::fromUntrusted)
+            .failIfNull(InvalidRequestError("Invalid item name in form: $this"))
+
+    private fun Request.extractListNameFromForm(formName: String): ZettaiOutcome<ListName> =
+        form(formName)
+            .orEmpty()
+            .let(ListName::fromUntrusted)
+            .failIfNull(InvalidRequestError("Invalid list name in form: $this"))
 
     private fun toResponse(html: HtmlPage): Response = Response(OK).body(html.raw)
+
+    private fun anonymousUser(): User = User("anonymous")
 }

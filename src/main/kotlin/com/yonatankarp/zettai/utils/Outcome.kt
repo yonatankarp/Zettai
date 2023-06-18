@@ -13,15 +13,16 @@ sealed class Outcome<out E : OutcomeError, out T> {
             is Failure -> this
         }
 
-    fun <T, E : OutcomeError> Outcome<E, T>.recover(recoverError: (E) -> T): T =
-        when (this) {
-            is Success -> value
-            is Failure -> recoverError(error)
-        }
-
     companion object {
         fun <T, U, E : OutcomeError> lift(f: (T) -> U): (Outcome<E, T>) -> Outcome<E, U> =
             { o -> o.transform { f(it) } }
+
+        fun <T, E : OutcomeError> Outcome<E, T>.recover(recoverError: (E) -> T): T =
+            when (this) {
+                is Success -> value
+                is Failure -> recoverError(error)
+            }
+
     }
 }
 

@@ -4,6 +4,9 @@ import com.yonatankarp.zettai.commands.ToDoListCommand
 import com.yonatankarp.zettai.commands.ToDoListCommandHandler
 import com.yonatankarp.zettai.events.EventPersister
 import com.yonatankarp.zettai.events.ToDoListEvent
+import com.yonatankarp.zettai.utils.Outcome
+
+typealias ZettaiOutcome<T> = Outcome<ZettaiError, T>
 
 interface ZettaiHub {
     fun getList(user: User, listName: ListName): ToDoList?

@@ -10,10 +10,18 @@ import kotlin.random.Random
 
 fun emptyStore(): ToDoListStore = mutableMapOf()
 
+fun usersGenerator(): Sequence<User> = generateSequence {
+    randomUser()
+}
+
 fun randomUser() =
     randomString(lowercase, 3, 6)
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
         .let(::User)
+
+fun toDoListsGenerator(): Sequence<ToDoList> = generateSequence {
+    randomToDoList()
+}
 
 fun randomToDoList(): ToDoList = ToDoList(
     randomListName(),

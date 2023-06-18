@@ -41,15 +41,16 @@ class ToDoListCommandHandler(
 
             is ActiveToDoList,
             is OnHoldToDoList,
-            is ClosedToDoList -> InconsistentStateError(this, listState).asFailure()
+            is ClosedToDoList,
+            -> InconsistentStateError(this, listState).asFailure()
         }
 
     private fun AddToDoItem.execute(): ToDoListCommandOutcome =
         when (val listState = entityRetriever.retrieveByName(user, name)) {
             is ActiveToDoList -> {
-                if (listState.items.any { it.description == item.description })
+                if (listState.items.any { it.description == item.description }) {
                     ToDoListCommandError("cannot have 2 items with same name").asFailure()
-                else {
+                } else {
                     readModel.addItemToList(user, listState.name, item)
                     ItemAdded(listState.id, item).asCommandSuccess()
                 }
@@ -57,7 +58,8 @@ class ToDoListCommandHandler(
 
             InitialState,
             is OnHoldToDoList,
-            is ClosedToDoList -> InconsistentStateError(this, listState).asFailure()
+            is ClosedToDoList,
+            -> InconsistentStateError(this, listState).asFailure()
 
             null -> ToDoListCommandError("list $name not found").asFailure()
         }

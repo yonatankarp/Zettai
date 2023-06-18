@@ -5,8 +5,6 @@ import com.ubertob.pesticide.core.DdtProtocol
 import com.ubertob.pesticide.core.DomainSetUp
 import com.ubertob.pesticide.core.Http
 import com.ubertob.pesticide.core.Ready
-import com.yonatankarp.zettai.commands.AddToDoItem
-import com.yonatankarp.zettai.commands.CreateToDoList
 import com.yonatankarp.zettai.commands.ToDoListCommandHandler
 import com.yonatankarp.zettai.ddt.actors.ToDoListOwner
 import com.yonatankarp.zettai.domain.ListName
@@ -15,11 +13,14 @@ import com.yonatankarp.zettai.domain.ToDoList
 import com.yonatankarp.zettai.domain.ToDoListFetcherFromMap
 import com.yonatankarp.zettai.domain.ToDoListHub
 import com.yonatankarp.zettai.domain.User
+import com.yonatankarp.zettai.domain.ZettaiOutcome
+import com.yonatankarp.zettai.domain.generators.expectSuccess
 import com.yonatankarp.zettai.events.ToDoListEventStore
 import com.yonatankarp.zettai.events.ToDoListEventStreamerInMemory
 import com.yonatankarp.zettai.ui.HtmlPage
 import com.yonatankarp.zettai.ui.toIsoLocalDate
 import com.yonatankarp.zettai.ui.toStatus
+import com.yonatankarp.zettai.utils.asSuccess
 import com.yonatankarp.zettai.webservice.Zettai
 import org.http4k.client.JettyClient
 import org.http4k.core.Method
@@ -32,9 +33,7 @@ import org.http4k.server.Jetty
 import org.http4k.server.asServer
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import org.junit.jupiter.api.fail
 import strikt.api.expectThat
-import strikt.assertions.hasSize
 import strikt.assertions.isEqualTo
 
 class HttpActions(env: String = "local") : ZettaiActions {
@@ -73,18 +72,18 @@ class HttpActions(env: String = "local") : ZettaiActions {
     }
 
     override fun ToDoListOwner.`starts with a list`(listName: String, items: List<String>) {
-        val list = ListName.fromTrusted(listName)
+        val listName1 = ListName.fromTrusted(listName)
+        val lists = allUserLists(user).expectSuccess()
+        if (listName1 !in lists) {
+            val response = submitToZettai(allUserListsUrl(user), newListForm(listName1))
 
-        hub.handle(CreateToDoList(user, list))
-            ?: fail("Failed to create list $listName for $name")
+            expectThat(response.status).isEqualTo(Status.SEE_OTHER) // redirect same page
 
-        val created = items
-            .mapNotNull { hub.handle(AddToDoItem(user, list, ToDoItem(it))) }
-
-        expectThat(created).hasSize(items.size)
+            items.forEach { addListItem(user, listName1, ToDoItem(it)) }
+        }
     }
 
-    override fun allUserLists(user: User): List<ListName> {
+    override fun allUserLists(user: User): ZettaiOutcome<List<ListName>> {
         val response = callZettai(Method.GET, allUserListsUrl(user))
 
         expectThat(response.status).isEqualTo(Status.OK)
@@ -93,7 +92,7 @@ class HttpActions(env: String = "local") : ZettaiActions {
 
         val names = extractListNamesFromPage(html)
 
-        return names.map { name -> ListName.fromTrusted(name) }
+        return names.map { name -> ListName.fromTrusted(name) }.asSuccess()
     }
 
     override fun createList(user: User, listName: ListName) {
@@ -107,12 +106,8 @@ class HttpActions(env: String = "local") : ZettaiActions {
     private fun callZettai(method: Method, path: String): Response =
         client(log(Request(method, "http://localhost:$zettaiPort/$path")))
 
-    override fun getToDoList(user: User, listName: ListName): ToDoList? {
+    override fun getToDoList(user: User, listName: ListName): ZettaiOutcome<ToDoList> {
         val response = callZettai(Method.GET, todoListUrl(user, listName))
-
-        if (response.status == Status.NOT_FOUND) {
-            return null
-        }
 
         expectThat(response.status).isEqualTo(Status.OK)
 
@@ -120,7 +115,7 @@ class HttpActions(env: String = "local") : ZettaiActions {
 
         val items = extractItemsFromPage(html)
 
-        return ToDoList(listName, items)
+        return ToDoList(listName, items).asSuccess()
     }
 
     private fun HtmlPage.parse(): Document = Jsoup.parse(raw)

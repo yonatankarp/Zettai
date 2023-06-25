@@ -11,7 +11,11 @@ fun stringsGenerator(charSet: String, minLen: Int, maxLen: Int): Sequence<String
         randomString(charSet, minLen, maxLen)
     }
 
-fun randomString(charSet: String, minLen: Int, maxLen: Int) =
+fun randomString(
+    charSet: String = uppercase + lowercase + digits,
+    minLen: Int = 5,
+    maxLen: Int = 20,
+) =
     StringBuilder().run {
         val len = if (maxLen > minLen) Random.nextInt(maxLen - minLen) + minLen else minLen
         repeat(len) {

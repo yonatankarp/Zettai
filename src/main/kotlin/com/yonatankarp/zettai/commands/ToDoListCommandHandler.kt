@@ -1,10 +1,8 @@
 package com.yonatankarp.zettai.commands
 
 import com.yonatankarp.zettai.domain.InconsistentStateError
-import com.yonatankarp.zettai.domain.ToDoList
 import com.yonatankarp.zettai.domain.ToDoListCommandError
 import com.yonatankarp.zettai.domain.ToDoListRetriever
-import com.yonatankarp.zettai.domain.ToDoListUpdatableFetcher
 import com.yonatankarp.zettai.domain.ZettaiError
 import com.yonatankarp.zettai.domain.ZettaiOutcome
 import com.yonatankarp.zettai.events.ActiveToDoList
@@ -24,7 +22,6 @@ typealias ToDoListCommandOutcome = ZettaiOutcome<List<ToDoListEvent>>
 
 class ToDoListCommandHandler(
     private val entityRetriever: ToDoListRetriever,
-    private val readModel: ToDoListUpdatableFetcher, // temporary needed to update the read model
 ) : CommandHandler<ToDoListCommand, ToDoListEvent, ZettaiError> {
     override fun invoke(command: ToDoListCommand): ToDoListCommandOutcome =
         when (command) {
@@ -34,11 +31,7 @@ class ToDoListCommandHandler(
 
     private fun CreateToDoList.execute(): ToDoListCommandOutcome =
         when (val listState = entityRetriever.retrieveByName(user, name) ?: InitialState) {
-            InitialState -> {
-                readModel.assignListToUser(user, ToDoList(name, emptyList()))
-                ListCreated(id, user, name).asCommandSuccess()
-            }
-
+            InitialState -> ListCreated(id, user, name).asCommandSuccess()
             is ActiveToDoList,
             is OnHoldToDoList,
             is ClosedToDoList,
@@ -50,10 +43,8 @@ class ToDoListCommandHandler(
             is ActiveToDoList -> {
                 if (listState.items.any { it.description == item.description }) {
                     ToDoListCommandError("cannot have 2 items with same name").asFailure()
-                } else {
-                    readModel.addItemToList(user, listState.name, item)
+                } else
                     ItemAdded(listState.id, item).asCommandSuccess()
-                }
             }
 
             InitialState,

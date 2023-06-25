@@ -3,6 +3,7 @@ package com.yonatankarp.zettai.events
 import com.yonatankarp.zettai.domain.ListName
 import com.yonatankarp.zettai.domain.ToDoItem
 import com.yonatankarp.zettai.domain.User
+import com.yonatankarp.zettai.projections.RowId
 import java.time.Instant
 import java.util.UUID
 
@@ -11,6 +12,8 @@ typealias ToDoListId = EntityId
 data class EntityId(val raw: UUID) {
     companion object {
         fun mint() = EntityId(UUID.randomUUID())
+
+        fun fromRowId(rowId: RowId) = EntityId(UUID.fromString(rowId.id))
     }
 }
 

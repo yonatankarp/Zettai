@@ -21,7 +21,7 @@ sealed class Outcome<out E : OutcomeError, out T> {
 
     fun <T> tryAndCatch(block: () -> T): Outcome<ThrowableError, T> =
         try {
-           block().asSuccess()
+            block().asSuccess()
         } catch (t: Throwable) {
             ThrowableError(t).asFailure()
         }

@@ -2,7 +2,6 @@ package com.yonatankarp.zettai.commands
 
 import com.yonatankarp.zettai.domain.InconsistentStateError
 import com.yonatankarp.zettai.domain.ToDoListCommandError
-import com.yonatankarp.zettai.domain.ToDoListFetcherFromMap
 import com.yonatankarp.zettai.domain.generators.expectFailure
 import com.yonatankarp.zettai.domain.generators.expectSuccess
 import com.yonatankarp.zettai.domain.generators.randomItem
@@ -14,14 +13,12 @@ import com.yonatankarp.zettai.events.ToDoListEventStreamerInMemory
 import org.junit.jupiter.api.Test
 import strikt.api.expectThat
 import strikt.assertions.isA
-import strikt.assertions.single
 
 internal class ToDoListCommandsTest {
 
-    private val fetcher = ToDoListFetcherFromMap(mutableMapOf())
     private val streamer = ToDoListEventStreamerInMemory()
     private val eventStore = ToDoListEventStore(streamer)
-    private val handler = ToDoListCommandHandler(eventStore, fetcher)
+    private val handler = ToDoListCommandHandler(eventStore)
 
     @Test
     fun `Add list fails if the user has already a list with same name`() {

@@ -3,12 +3,10 @@ package com.yonatankarp.zettai.domain.generators
 import com.yonatankarp.zettai.domain.ListName
 import com.yonatankarp.zettai.domain.ToDoItem
 import com.yonatankarp.zettai.domain.ToDoList
-import com.yonatankarp.zettai.domain.ToDoListStore
 import com.yonatankarp.zettai.domain.User
-import java.util.*
+import java.time.Instant
+import java.util.Locale
 import kotlin.random.Random
-
-fun emptyStore(): ToDoListStore = mutableMapOf()
 
 fun usersGenerator(): Sequence<User> = generateSequence {
     randomUser()
@@ -29,7 +27,7 @@ fun randomToDoList(): ToDoList = ToDoList(
 )
 
 fun randomListName(): ListName =
-    randomString(lowercase, 3, 6)
+    (randomString(lowercase, 3, 6) + Instant.now().toString())
         .let(::ListName)
 
 fun itemsGenerator(): Sequence<ToDoItem> =

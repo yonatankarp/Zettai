@@ -5,18 +5,14 @@ import com.ubertob.pesticide.core.DdtProtocol
 import com.ubertob.pesticide.core.DomainSetUp
 import com.ubertob.pesticide.core.Http
 import com.ubertob.pesticide.core.Ready
-import com.yonatankarp.zettai.commands.ToDoListCommandHandler
 import com.yonatankarp.zettai.ddt.actors.ToDoListOwner
 import com.yonatankarp.zettai.domain.ListName
 import com.yonatankarp.zettai.domain.ToDoItem
 import com.yonatankarp.zettai.domain.ToDoList
-import com.yonatankarp.zettai.domain.ToDoListFetcherFromMap
-import com.yonatankarp.zettai.domain.ToDoListHub
 import com.yonatankarp.zettai.domain.User
 import com.yonatankarp.zettai.domain.ZettaiOutcome
 import com.yonatankarp.zettai.domain.generators.expectSuccess
-import com.yonatankarp.zettai.events.ToDoListEventStore
-import com.yonatankarp.zettai.events.ToDoListEventStreamerInMemory
+import com.yonatankarp.zettai.domain.prepareToDoListHubForTests
 import com.yonatankarp.zettai.ui.HtmlPage
 import com.yonatankarp.zettai.ui.toIsoLocalDate
 import com.yonatankarp.zettai.ui.toStatus
@@ -40,12 +36,7 @@ class HttpActions(env: String = "local") : ZettaiActions {
 
     override val protocol: DdtProtocol = Http(env)
 
-    private val fetcher = ToDoListFetcherFromMap(mutableMapOf())
-    private val streamer = ToDoListEventStreamerInMemory()
-    private val eventStore = ToDoListEventStore(streamer)
-
-    private val commandHandler = ToDoListCommandHandler(eventStore, fetcher)
-    private val hub = ToDoListHub(fetcher, commandHandler, eventStore)
+    private val hub = prepareToDoListHubForTests()
 
     private val zettaiPort = 8001 // different from the one on main
     private val server = Zettai(hub).asServer(Jetty(zettaiPort))

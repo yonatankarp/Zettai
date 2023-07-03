@@ -3,7 +3,7 @@ package com.yonatankarp.zettai.events
 import com.yonatankarp.zettai.domain.ListName
 import com.yonatankarp.zettai.domain.ToDoItem
 import com.yonatankarp.zettai.domain.User
-import com.yonatankarp.zettai.projections.RowId
+import com.yonatankarp.zettai.queries.projections.RowId
 import java.time.Instant
 import java.util.UUID
 

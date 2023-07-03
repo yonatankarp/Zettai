@@ -11,8 +11,8 @@ import com.yonatankarp.zettai.domain.ToDoItem
 import com.yonatankarp.zettai.domain.ToDoList
 import com.yonatankarp.zettai.domain.User
 import com.yonatankarp.zettai.domain.ZettaiOutcome
+import com.yonatankarp.zettai.domain.generators.expectSuccess
 import com.yonatankarp.zettai.domain.prepareToDoListHubForTests
-import com.yonatankarp.zettai.utils.onFailure
 import strikt.api.expectThat
 import strikt.assertions.hasSize
 
@@ -25,14 +25,13 @@ class DomainOnlyActions : ZettaiActions {
 
     override fun ToDoListOwner.`starts with a list`(listName: String, items: List<String>) {
         val list = ListName.fromTrusted(listName)
+        hub.handle(CreateToDoList(user, list)).expectSuccess()
 
-        hub.handle(CreateToDoList(user, list))
-            .onFailure { throw RuntimeException("Failed to create list $listName") }
+        val events = items.map {
+            hub.handle(AddToDoItem(user, list, ToDoItem(it))).expectSuccess()
+        }
 
-        val created = items
-            .map { hub.handle(AddToDoItem(user, list, ToDoItem(it))) }
-
-        expectThat(created).hasSize(items.size)
+        expectThat(events).hasSize(items.size)
     }
 
     override fun getToDoList(user: User, listName: ListName): ZettaiOutcome<ToDoList> =
@@ -48,4 +47,7 @@ class DomainOnlyActions : ZettaiActions {
     override fun createList(user: User, listName: ListName) {
         hub.handle(CreateToDoList(user, listName))
     }
+
+    override fun whatsNext(user: User): ZettaiOutcome<List<ToDoItem>> =
+        hub.whatsNext(user)
 }

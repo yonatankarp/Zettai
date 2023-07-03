@@ -10,7 +10,7 @@ import com.yonatankarp.zettai.domain.ToDoStatus
 import com.yonatankarp.zettai.domain.User
 import com.yonatankarp.zettai.events.ToDoListEventStore
 import com.yonatankarp.zettai.events.ToDoListEventStreamerInMemory
-import com.yonatankarp.zettai.projections.ToDoListQueryRunner
+import com.yonatankarp.zettai.queries.ToDoListQueryRunner
 import org.http4k.server.Jetty
 import org.http4k.server.asServer
 import java.time.LocalDate

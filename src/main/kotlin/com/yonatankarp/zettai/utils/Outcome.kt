@@ -57,3 +57,6 @@ fun <T : Any, E : OutcomeError> T?.failIfNull(error: E): Outcome<E, T> =
 data class ThrowableError(val t: Throwable) : OutcomeError {
     override val msg: String = t.message.orEmpty()
 }
+
+fun <C : Collection<*>, E : OutcomeError> C.failIfEmpty(error: E): Outcome<E, C> =
+    if (isEmpty()) error.asFailure() else this.asSuccess()

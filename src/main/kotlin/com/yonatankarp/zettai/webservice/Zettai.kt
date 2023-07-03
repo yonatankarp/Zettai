@@ -11,6 +11,7 @@ import com.yonatankarp.zettai.domain.ZettaiOutcome
 import com.yonatankarp.zettai.ui.HtmlPage
 import com.yonatankarp.zettai.ui.renderListPage
 import com.yonatankarp.zettai.ui.renderListsPage
+import com.yonatankarp.zettai.ui.renderWhatsNextPage
 import com.yonatankarp.zettai.utils.Outcome.Companion.recover
 import com.yonatankarp.zettai.utils.failIfNull
 import com.yonatankarp.zettai.utils.onFailure
@@ -35,6 +36,7 @@ class Zettai(private val hub: ZettaiHub) : HttpHandler {
         "/todo/{user}/{list}" bind Method.POST to ::addNewItem,
         "/todo/{user}" bind Method.GET to ::getAllLists,
         "/todo/{user}" bind Method.POST to ::createNewList,
+        "/whatsnext/{user}" bind Method.GET to ::whatsNext,
     )
 
     override fun invoke(request: Request): Response = routes(request)
@@ -75,6 +77,15 @@ class Zettai(private val hub: ZettaiHub) : HttpHandler {
         return hub.handle(CreateToDoList(user, listName))
             .transform { Response(SEE_OTHER).header("Location", "/todo/${user.name}") }
             .recover { Response(Status.UNPROCESSABLE_ENTITY).body(it.msg) }
+    }
+
+    private fun whatsNext(request: Request): Response {
+        val user = request.extractUser().onFailure { return Response(BAD_REQUEST).body(it.msg) }
+
+        return hub.whatsNext(user)
+            .transform { renderWhatsNextPage(user, it) }
+            .transform(::toResponse)
+            .recover { Response(NOT_FOUND).body(it.msg) }
     }
 
     private fun Request.extractUser(): ZettaiOutcome<User> =

@@ -9,14 +9,14 @@ import com.yonatankarp.zettai.ddt.actors.ToDoListOwner
 import com.yonatankarp.zettai.domain.ListName
 import com.yonatankarp.zettai.domain.ToDoItem
 import com.yonatankarp.zettai.domain.ToDoList
+import com.yonatankarp.zettai.domain.ToDoStatus
 import com.yonatankarp.zettai.domain.User
 import com.yonatankarp.zettai.domain.ZettaiOutcome
 import com.yonatankarp.zettai.domain.generators.expectSuccess
 import com.yonatankarp.zettai.domain.prepareToDoListHubForTests
 import com.yonatankarp.zettai.ui.HtmlPage
-import com.yonatankarp.zettai.ui.toIsoLocalDate
-import com.yonatankarp.zettai.ui.toStatus
 import com.yonatankarp.zettai.utils.asSuccess
+import com.yonatankarp.zettai.utils.unlessNullOrEmpty
 import com.yonatankarp.zettai.webservice.Zettai
 import org.http4k.client.JettyClient
 import org.http4k.core.Method
@@ -31,6 +31,8 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import strikt.api.expectThat
 import strikt.assertions.isEqualTo
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 class HttpActions(env: String = "local") : ZettaiActions {
 
@@ -92,6 +94,18 @@ class HttpActions(env: String = "local") : ZettaiActions {
         expectThat(response.status).isEqualTo(Status.SEE_OTHER)
     }
 
+    override fun whatsNext(user: User): ZettaiOutcome<List<ToDoItem>> {
+        val response = callZettai(Method.GET, whatsNextUrl(user))
+
+        expectThat(response.status).isEqualTo(Status.OK)
+
+        val html = HtmlPage(response.bodyString())
+
+        val items = extractItemsFromPage(html)
+
+        return items.asSuccess()
+    }
+
     private fun newListForm(listName: ListName): Form = listOf("listname" to listName.name)
 
     private fun callZettai(method: Method, path: String): Response =
@@ -141,7 +155,14 @@ class HttpActions(env: String = "local") : ZettaiActions {
     private fun todoListUrl(user: User, listName: ListName) = "todo/${user.name}/${listName.name}"
 
     private fun allUserListsUrl(user: User) = "todo/${user.name}"
+
+    private fun whatsNextUrl(user: User) = "whatsnext/${user.name}"
 }
 
 // TODO: use real logger
 fun <T> log(something: T): T = something.also { println("--- $something") }
+
+fun String?.toIsoLocalDate(): LocalDate? =
+    unlessNullOrEmpty { LocalDate.parse(this, DateTimeFormatter.ISO_LOCAL_DATE) }
+
+fun String.toStatus(): ToDoStatus = ToDoStatus.valueOf(this)

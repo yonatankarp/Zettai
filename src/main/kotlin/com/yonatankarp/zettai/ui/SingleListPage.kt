@@ -1,6 +1,5 @@
 package com.yonatankarp.zettai.ui
 
-import com.yonatankarp.zettai.domain.ToDoItem
 import com.yonatankarp.zettai.domain.ToDoList
 import com.yonatankarp.zettai.domain.User
 
@@ -48,13 +47,3 @@ fun renderListPage(user: User, todoList: ToDoList): HtmlPage =
         </html>
         """.trimIndent(),
     )
-
-private fun List<ToDoItem>.renderItems() =
-    joinToString(separator = "", transform = ::renderItem)
-
-private fun renderItem(it: ToDoItem): String = """<tr>
-              <td>${it.description}</td>
-              <td>${it.dueDate?.toIsoString().orEmpty()}</td>
-              <td>${it.status}</td>
-            </tr>
-""".trimIndent()

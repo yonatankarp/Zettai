@@ -3,7 +3,7 @@ package com.yonatankarp.zettai.domain
 import com.yonatankarp.zettai.commands.ToDoListCommandHandler
 import com.yonatankarp.zettai.events.ToDoListEventStore
 import com.yonatankarp.zettai.events.ToDoListEventStreamerInMemory
-import com.yonatankarp.zettai.projections.ToDoListQueryRunner
+import com.yonatankarp.zettai.queries.ToDoListQueryRunner
 
 fun prepareToDoListHubForTests(): ToDoListHub {
     val streamer = ToDoListEventStreamerInMemory()

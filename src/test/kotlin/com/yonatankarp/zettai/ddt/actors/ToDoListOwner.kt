@@ -13,7 +13,9 @@ import strikt.assertions.containsExactly
 import strikt.assertions.containsExactlyInAnyOrder
 import strikt.assertions.doesNotContain
 import strikt.assertions.isEmpty
+import strikt.assertions.isEqualTo
 import strikt.assertions.map
+import java.time.LocalDate
 
 data class ToDoListOwner(override val name: String) : DdtActor<ZettaiActions>() {
     val user = User(name)
@@ -53,6 +55,19 @@ data class ToDoListOwner(override val name: String) : DdtActor<ZettaiActions>() 
     fun `can create a new list called #listname`(listName: String) =
         step(listName) {
             createList(user, ListName.fromUntrustedOrThrow(listName))
+        }
+
+    fun `can see that #itemname is the next task to do`(itemName: String) =
+        step(itemName) {
+            val items = whatsNext(user).expectSuccess()
+            val nextItemName = items.firstOrNull()?.description.orEmpty()
+            expectThat(nextItemName).isEqualTo(itemName)
+        }
+
+    fun `can add #itemname to the #listname due to #duedate`(itemName: String, listName: String, dueDate: LocalDate) =
+        step(itemName, listName, dueDate) {
+            val item = ToDoItem(itemName, dueDate)
+            addListItem(user, ListName.fromUntrustedOrThrow(listName), item)
         }
 
     private val Assertion.Builder<ToDoList>.itemNames

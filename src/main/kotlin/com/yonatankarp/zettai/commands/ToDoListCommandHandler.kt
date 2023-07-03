@@ -40,13 +40,7 @@ class ToDoListCommandHandler(
 
     private fun AddToDoItem.execute(): ToDoListCommandOutcome =
         when (val listState = entityRetriever.retrieveByName(user, name)) {
-            is ActiveToDoList -> {
-                if (listState.items.any { it.description == item.description }) {
-                    ToDoListCommandError("cannot have 2 items with same name").asFailure()
-                } else
-                    ItemAdded(listState.id, item).asCommandSuccess()
-            }
-
+            is ActiveToDoList -> addItem(listState)
             InitialState,
             is OnHoldToDoList,
             is ClosedToDoList,
@@ -54,6 +48,12 @@ class ToDoListCommandHandler(
 
             null -> ToDoListCommandError("list $name not found").asFailure()
         }
+
+    private fun AddToDoItem.addItem(listState: ActiveToDoList): ToDoListCommandOutcome =
+        if (listState.items.any { it.description == item.description }) {
+            ToDoListCommandError("cannot have 2 items with same name").asFailure()
+        } else
+            ItemAdded(listState.id, item).asCommandSuccess()
 
     private fun ToDoListEvent.asCommandSuccess(): ToDoListCommandOutcome = listOf(this).asSuccess()
 }

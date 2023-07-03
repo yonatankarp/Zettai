@@ -15,13 +15,13 @@ import com.yonatankarp.zettai.events.ListPutOnHold
 import com.yonatankarp.zettai.events.ListReleased
 import com.yonatankarp.zettai.events.ToDoListEvent
 import com.yonatankarp.zettai.events.ToDoListId
-import com.yonatankarp.zettai.projections.ConcurrentMapProjection
-import com.yonatankarp.zettai.projections.CreateRow
-import com.yonatankarp.zettai.projections.DeleteRow
-import com.yonatankarp.zettai.projections.DeltaRow
-import com.yonatankarp.zettai.projections.InMemoryProjection
-import com.yonatankarp.zettai.projections.RowId
-import com.yonatankarp.zettai.projections.UpdateRow
+import com.yonatankarp.zettai.queries.projections.ConcurrentMapProjection
+import com.yonatankarp.zettai.queries.projections.CreateRow
+import com.yonatankarp.zettai.queries.projections.DeleteRow
+import com.yonatankarp.zettai.queries.projections.DeltaRow
+import com.yonatankarp.zettai.queries.projections.InMemoryProjection
+import com.yonatankarp.zettai.queries.projections.RowId
+import com.yonatankarp.zettai.queries.projections.UpdateRow
 
 data class ToDoListProjectionRow(val user: User, val active: Boolean, val list: ToDoList) {
     fun addItem(item: ToDoItem): ToDoListProjectionRow = copy(list = list.copy(items = list.items + item))

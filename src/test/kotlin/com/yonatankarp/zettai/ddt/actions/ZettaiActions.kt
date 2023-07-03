@@ -20,4 +20,5 @@ interface ZettaiActions : DdtActions<DdtProtocol> {
     fun addListItem(user: User, listName: ListName, item: ToDoItem)
     fun allUserLists(user: User): ZettaiOutcome<List<ListName>>
     fun createList(user: User, listName: ListName)
+    fun whatsNext(user: User): ZettaiOutcome<List<ToDoItem>>
 }

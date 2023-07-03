@@ -1,4 +1,4 @@
-package com.yonatankarp.zettai.projections
+package com.yonatankarp.zettai.queries.projections
 
 import com.yonatankarp.zettai.events.EntityEvent
 import com.yonatankarp.zettai.events.EventSequence

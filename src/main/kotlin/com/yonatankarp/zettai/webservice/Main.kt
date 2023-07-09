@@ -22,13 +22,6 @@ fun main() {
     val queryRunner = ToDoListQueryRunner(streamer::fetchAfter)
     val hub = ToDoListHub(queryRunner, cmdHandler, eventStore)
 
-//    val fetcher = ToDoListFetcherFromMap(mutableMapOf())
-//    val streamer = ToDoListEventStreamerInMemory()
-//    val eventStore = ToDoListEventStore(streamer)
-//
-//    val commandHandler = ToDoListCommandHandler(eventStore, fetcher)
-//    val hub = ToDoListHub(fetcher, commandHandler, eventStore)
-
     hub.withExampleToDoList().withExampleItems()
 
     Zettai(hub).asServer(Jetty(8080)).start()

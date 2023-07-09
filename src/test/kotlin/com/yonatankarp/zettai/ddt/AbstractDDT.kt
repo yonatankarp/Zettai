@@ -7,9 +7,18 @@ import com.yonatankarp.zettai.ddt.actions.ZettaiActions
 
 typealias ZettaiDDT = DomainDrivenTest<ZettaiActions>
 
-fun allActions() = setOf(
-    DomainOnlyActions(),
-    HttpActions(),
-)
+internal val allActions: Set<ZettaiActions>
+    get() = setOf(
+        DomainOnlyActions(),
+        HttpActions(),
+    )
 
-abstract class AbstractDDT : ZettaiDDT(allActions())
+@Suppress("unused")
+internal val domainOnlyActions: Set<ZettaiActions>
+    get() = setOf(DomainOnlyActions())
+
+@Suppress("unused")
+internal val httpActions: Set<ZettaiActions>
+    get() = setOf(HttpActions())
+
+abstract class AbstractDDT(actions: Set<ZettaiActions> = allActions) : ZettaiDDT(actions)

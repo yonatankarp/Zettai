@@ -43,8 +43,9 @@ class ToDoListCommandHandler(
             is ActiveToDoList -> {
                 if (listState.items.any { it.description == item.description }) {
                     ToDoListCommandError("cannot have 2 items with same name").asFailure()
-                } else
+                } else {
                     ItemAdded(listState.id, item).asCommandSuccess()
+                }
             }
 
             InitialState,

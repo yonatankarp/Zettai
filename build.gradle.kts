@@ -5,7 +5,7 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent.SKIPPED
 
 plugins {
     kotlin("jvm") version "1.9.20"
-    id("com.diffplug.spotless") version "6.21.0"
+    id("com.diffplug.spotless") version "6.22.0"
 }
 
 repositories {

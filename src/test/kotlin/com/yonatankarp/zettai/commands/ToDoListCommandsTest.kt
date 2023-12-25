@@ -15,7 +15,6 @@ import strikt.api.expectThat
 import strikt.assertions.isA
 
 internal class ToDoListCommandsTest {
-
     private val streamer = ToDoListEventStreamerInMemory()
     private val eventStore = ToDoListEventStore(streamer)
     private val handler = ToDoListCommandHandler(eventStore)

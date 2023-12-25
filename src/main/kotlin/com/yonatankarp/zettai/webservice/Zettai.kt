@@ -29,13 +29,13 @@ import org.http4k.routing.path
 import org.http4k.routing.routes
 
 class Zettai(private val hub: ZettaiHub) : HttpHandler {
-
-    val routes = routes(
-        "/todo/{user}/{list}" bind Method.GET to ::getToDoList,
-        "/todo/{user}/{list}" bind Method.POST to ::addNewItem,
-        "/todo/{user}" bind Method.GET to ::getAllLists,
-        "/todo/{user}" bind Method.POST to ::createNewList,
-    )
+    val routes =
+        routes(
+            "/todo/{user}/{list}" bind Method.GET to ::getToDoList,
+            "/todo/{user}/{list}" bind Method.POST to ::addNewItem,
+            "/todo/{user}" bind Method.GET to ::getAllLists,
+            "/todo/{user}" bind Method.POST to ::createNewList,
+        )
 
     override fun invoke(request: Request): Response = routes(request)
 
@@ -69,8 +69,9 @@ class Zettai(private val hub: ZettaiHub) : HttpHandler {
 
     private fun createNewList(request: Request): Response {
         val user = request.extractUser().recover { anonymousUser() }
-        val listName = request.extractListNameFromForm("listname")
-            .onFailure { return Response(BAD_REQUEST).body("missing listname in form") }
+        val listName =
+            request.extractListNameFromForm("listname")
+                .onFailure { return Response(BAD_REQUEST).body("missing listname in form") }
 
         return hub.handle(CreateToDoList(user, listName))
             .transform { Response(SEE_OTHER).header("Location", "/todo/${user.name}") }

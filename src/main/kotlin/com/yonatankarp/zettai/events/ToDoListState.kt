@@ -9,8 +9,7 @@ interface EntityState<in E : EntityEvent> {
     fun combine(event: E): EntityState<E>
 }
 
-fun Iterable<ToDoListEvent>.fold(): ToDoListState =
-    fold(InitialState as ToDoListState) { acc, e -> acc.combine(e) }
+fun Iterable<ToDoListEvent>.fold(): ToDoListState = fold(InitialState as ToDoListState) { acc, e -> acc.combine(e) }
 
 sealed class ToDoListState : EntityState<ToDoListEvent> {
     abstract override fun combine(event: ToDoListEvent): ToDoListState
@@ -23,6 +22,7 @@ object InitialState : ToDoListState() {
             else -> this // ignore other events
         }
 }
+
 data class ActiveToDoList internal constructor(
     val id: ToDoListId,
     val owner: User,
@@ -70,8 +70,12 @@ data class ClosedToDoList internal constructor(
     override fun combine(event: ToDoListEvent): ToDoListState = this // ignore other events
 }
 
-fun create(id: ToDoListId, owner: User, name: ListName, items: List<ToDoItem>) =
-    ActiveToDoList(id, owner, name, items)
+fun create(
+    id: ToDoListId,
+    owner: User,
+    name: ListName,
+    items: List<ToDoItem>,
+) = ActiveToDoList(id, owner, name, items)
 
 fun ActiveToDoList.onHold(reason: String) = OnHoldToDoList(id, owner, name, items, reason)
 

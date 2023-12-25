@@ -11,8 +11,13 @@ import com.yonatankarp.zettai.utils.failIfNull
 typealias ZettaiOutcome<T> = Outcome<ZettaiError, T>
 
 interface ZettaiHub {
-    fun getList(user: User, listName: ListName): ZettaiOutcome<ToDoList>
+    fun getList(
+        user: User,
+        listName: ListName,
+    ): ZettaiOutcome<ToDoList>
+
     fun getLists(user: User): ZettaiOutcome<List<ListName>>
+
     fun handle(command: ToDoListCommand): ZettaiOutcome<ToDoListCommand>
 }
 
@@ -21,7 +26,10 @@ class ToDoListHub(
     private val commandHandler: ToDoListCommandHandler,
     private val persistEvents: EventPersister<ToDoListEvent>,
 ) : ZettaiHub {
-    override fun getList(user: User, listName: ListName): ZettaiOutcome<ToDoList> =
+    override fun getList(
+        user: User,
+        listName: ListName,
+    ): ZettaiOutcome<ToDoList> =
         queryRunner {
             listProjection
                 .findList(user, listName)

@@ -15,7 +15,6 @@ import strikt.assertions.isA
 import strikt.assertions.isEqualTo
 
 class ToDoListHubTest {
-
     private val hub = prepareToDoListHubForTests()
 
     @Test

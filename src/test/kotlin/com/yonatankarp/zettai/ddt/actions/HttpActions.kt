@@ -33,7 +33,6 @@ import strikt.api.expectThat
 import strikt.assertions.isEqualTo
 
 class HttpActions(env: String = "local") : ZettaiActions {
-
     override val protocol: DdtProtocol = Http(env)
 
     private val hub = prepareToDoListHubForTests()
@@ -50,19 +49,27 @@ class HttpActions(env: String = "local") : ZettaiActions {
 
     override fun tearDown(): DdtActions<DdtProtocol> = also { server.stop() }
 
-    override fun addListItem(user: User, listName: ListName, item: ToDoItem) {
-        val response = submitToZettai(
-            todoListUrl(user, listName),
-            listOf(
-                "itemname" to item.description,
-                "itemdue" to item.dueDate?.toString(),
-            ),
-        )
+    override fun addListItem(
+        user: User,
+        listName: ListName,
+        item: ToDoItem,
+    ) {
+        val response =
+            submitToZettai(
+                todoListUrl(user, listName),
+                listOf(
+                    "itemname" to item.description,
+                    "itemdue" to item.dueDate?.toString(),
+                ),
+            )
 
         expectThat(response.status).isEqualTo(Status.SEE_OTHER)
     }
 
-    override fun ToDoListOwner.`starts with a list`(listName: String, items: List<String>) {
+    override fun ToDoListOwner.`starts with a list`(
+        listName: String,
+        items: List<String>,
+    ) {
         val listName1 = ListName.fromTrusted(listName)
         val lists = allUserLists(user).expectSuccess()
         if (listName1 !in lists) {
@@ -86,7 +93,10 @@ class HttpActions(env: String = "local") : ZettaiActions {
         return names.map { name -> ListName.fromTrusted(name) }.asSuccess()
     }
 
-    override fun createList(user: User, listName: ListName) {
+    override fun createList(
+        user: User,
+        listName: ListName,
+    ) {
         val response = submitToZettai(allUserListsUrl(user), newListForm(listName))
 
         expectThat(response.status).isEqualTo(Status.SEE_OTHER)
@@ -94,10 +104,15 @@ class HttpActions(env: String = "local") : ZettaiActions {
 
     private fun newListForm(listName: ListName): Form = listOf("listname" to listName.name)
 
-    private fun callZettai(method: Method, path: String): Response =
-        client(log(Request(method, "http://localhost:$zettaiPort/$path")))
+    private fun callZettai(
+        method: Method,
+        path: String,
+    ): Response = client(log(Request(method, "http://localhost:$zettaiPort/$path")))
 
-    override fun getToDoList(user: User, listName: ListName): ZettaiOutcome<ToDoList> {
+    override fun getToDoList(
+        user: User,
+        listName: ListName,
+    ): ZettaiOutcome<ToDoList> {
         val response = callZettai(Method.GET, todoListUrl(user, listName))
 
         expectThat(response.status).isEqualTo(Status.OK)
@@ -130,7 +145,10 @@ class HttpActions(env: String = "local") : ZettaiActions {
             .select("tr")
             .mapNotNull { it.select("td").firstOrNull()?.text() }
 
-    private fun submitToZettai(path: String, webForm: Form): Response =
+    private fun submitToZettai(
+        path: String,
+        webForm: Form,
+    ): Response =
         client(
             log(
                 Request(Method.POST, "http://localhost:$zettaiPort/$path")
@@ -138,7 +156,10 @@ class HttpActions(env: String = "local") : ZettaiActions {
             ),
         )
 
-    private fun todoListUrl(user: User, listName: ListName) = "todo/${user.name}/${listName.name}"
+    private fun todoListUrl(
+        user: User,
+        listName: ListName,
+    ) = "todo/${user.name}/${listName.name}"
 
     private fun allUserListsUrl(user: User) = "todo/${user.name}"
 }

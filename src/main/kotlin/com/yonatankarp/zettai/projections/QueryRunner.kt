@@ -8,7 +8,6 @@ data class ProjectionQuery<T>(
     val projections: Set<Projection<*, *>>,
     val runner: () -> T,
 ) {
-
     fun <U> transform(f: (T) -> U): ProjectionQuery<U> = ProjectionQuery(projections) { f(runner()) }
 
     fun execute(): T {

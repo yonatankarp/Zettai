@@ -5,6 +5,7 @@ import com.yonatankarp.zettai.utils.Outcome.Success
 
 sealed class Outcome<out E : OutcomeError, out T> {
     data class Success<T> internal constructor(val value: T) : Outcome<Nothing, T>()
+
     data class Failure<E : OutcomeError> internal constructor(val error: E) : Outcome<E, Nothing>()
 
     fun <U> transform(f: (T) -> U): Outcome<E, U> =
@@ -27,8 +28,7 @@ sealed class Outcome<out E : OutcomeError, out T> {
         }
 
     companion object {
-        fun <T, U, E : OutcomeError> lift(f: (T) -> U): (Outcome<E, T>) -> Outcome<E, U> =
-            { o -> o.transform { f(it) } }
+        fun <T, U, E : OutcomeError> lift(f: (T) -> U): (Outcome<E, T>) -> Outcome<E, U> = { o -> o.transform { f(it) } }
 
         fun <T, E : OutcomeError> Outcome<E, T>.recover(recoverError: (E) -> T): T =
             when (this) {
@@ -49,10 +49,10 @@ inline fun <T, E : OutcomeError> Outcome<E, T>.onFailure(exitBlock: (E) -> Nothi
     }
 
 fun <E : OutcomeError> E.asFailure(): Outcome<E, Nothing> = Failure(this)
+
 fun <T> T.asSuccess(): Outcome<Nothing, T> = Success(this)
 
-fun <T : Any, E : OutcomeError> T?.failIfNull(error: E): Outcome<E, T> =
-    this?.asSuccess() ?: error.asFailure()
+fun <T : Any, E : OutcomeError> T?.failIfNull(error: E): Outcome<E, T> = this?.asSuccess() ?: error.asFailure()
 
 data class ThrowableError(val t: Throwable) : OutcomeError {
     override val msg: String = t.message.orEmpty()

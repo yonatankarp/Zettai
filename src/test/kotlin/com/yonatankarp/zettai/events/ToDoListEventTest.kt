@@ -31,13 +31,14 @@ internal class ToDoListEventTest {
     @Test
     fun `adding and removing items to active list`() {
         // Given
-        val events = listOf(
-            ListCreated(id, user, name),
-            ItemAdded(id, item1),
-            ItemAdded(id, item2),
-            ItemAdded(id, item3),
-            ItemRemoved(id, item2),
-        )
+        val events =
+            listOf(
+                ListCreated(id, user, name),
+                ItemAdded(id, item1),
+                ItemAdded(id, item2),
+                ItemAdded(id, item3),
+                ItemRemoved(id, item2),
+            )
 
         // When
         val list = events.fold()
@@ -51,13 +52,14 @@ internal class ToDoListEventTest {
     fun `modifying an item`() {
         // Given
         val modifiedItem2 = item2.copy(description = "new description")
-        val events = listOf(
-            ListCreated(id, user, name),
-            ItemAdded(id, item1),
-            ItemAdded(id, item2),
-            ItemAdded(id, item3),
-            ItemModified(id, item2, modifiedItem2),
-        )
+        val events =
+            listOf(
+                ListCreated(id, user, name),
+                ItemAdded(id, item1),
+                ItemAdded(id, item2),
+                ItemAdded(id, item3),
+                ItemModified(id, item2, modifiedItem2),
+            )
 
         // When
         val list = events.fold()
@@ -71,13 +73,14 @@ internal class ToDoListEventTest {
     fun `putting the list on hold`() {
         // Given
         val reason = "not urgent anymore"
-        val events = listOf(
-            ListCreated(id, user, name),
-            ItemAdded(id, item1),
-            ItemAdded(id, item2),
-            ItemAdded(id, item3),
-            ListPutOnHold(id, reason),
-        )
+        val events =
+            listOf(
+                ListCreated(id, user, name),
+                ItemAdded(id, item1),
+                ItemAdded(id, item2),
+                ItemAdded(id, item3),
+                ListPutOnHold(id, reason),
+            )
 
         // When
         val list = events.fold()
@@ -89,14 +92,15 @@ internal class ToDoListEventTest {
     @Test
     fun `releasing a list`() {
         // Given
-        val events = listOf(
-            ListCreated(id, user, name),
-            ItemAdded(id, item1),
-            ItemAdded(id, item2),
-            ItemAdded(id, item3),
-            ListPutOnHold(id, "not urgent anymore"),
-            ListReleased(id),
-        )
+        val events =
+            listOf(
+                ListCreated(id, user, name),
+                ItemAdded(id, item1),
+                ItemAdded(id, item2),
+                ItemAdded(id, item3),
+                ListPutOnHold(id, "not urgent anymore"),
+                ListReleased(id),
+            )
 
         // When
         val list = events.fold()
@@ -109,13 +113,14 @@ internal class ToDoListEventTest {
     fun `closing a list`() {
         // Given
         val closingTime = Instant.now()
-        val events = listOf(
-            ListCreated(id, user, name),
-            ItemAdded(id, item1),
-            ItemAdded(id, item2),
-            ItemAdded(id, item3),
-            ListClosed(id, closingTime),
-        )
+        val events =
+            listOf(
+                ListCreated(id, user, name),
+                ItemAdded(id, item1),
+                ItemAdded(id, item2),
+                ItemAdded(id, item3),
+                ListClosed(id, closingTime),
+            )
 
         // When
         val list = events.fold()
@@ -128,15 +133,16 @@ internal class ToDoListEventTest {
     fun `releasing a list and then closing it`() {
         // Given
         val closingTime = Instant.now()
-        val events = listOf(
-            ListCreated(id, user, name),
-            ItemAdded(id, item1),
-            ItemAdded(id, item2),
-            ItemAdded(id, item3),
-            ListPutOnHold(id, "not urgent anymore"),
-            ListReleased(id),
-            ListClosed(id, closingTime),
-        )
+        val events =
+            listOf(
+                ListCreated(id, user, name),
+                ItemAdded(id, item1),
+                ItemAdded(id, item2),
+                ItemAdded(id, item3),
+                ListPutOnHold(id, "not urgent anymore"),
+                ListReleased(id),
+                ListClosed(id, closingTime),
+            )
 
         // When
         val list = events.fold()

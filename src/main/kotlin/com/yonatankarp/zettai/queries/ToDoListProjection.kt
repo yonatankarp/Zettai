@@ -28,8 +28,10 @@ data class ToDoListProjectionRow(val user: User, val active: Boolean, val list: 
 
     fun removeItem(item: ToDoItem): ToDoListProjectionRow = copy(list = list.copy(items = list.items - item))
 
-    fun replaceItem(previousItem: ToDoItem, item: ToDoItem): ToDoListProjectionRow =
-        copy(list = list.copy(items = list.items - previousItem + item))
+    fun replaceItem(
+        previousItem: ToDoItem,
+        item: ToDoItem,
+    ): ToDoListProjectionRow = copy(list = list.copy(items = list.items - previousItem + item))
 
     fun putOnHold(): ToDoListProjectionRow = copy(active = false)
 
@@ -47,7 +49,10 @@ class ToDoListProjection(eventFetcher: FetchStoredEvents<ToDoListEvent>) :
             .filter { it.user == user }
             .map { it.list.listName }
 
-    fun findList(user: User, name: ListName): ToDoList? =
+    fun findList(
+        user: User,
+        name: ListName,
+    ): ToDoList? =
         allRows().values
             .firstOrNull { it.user == user && it.list.listName == name }
             ?.list
@@ -60,10 +65,11 @@ class ToDoListProjection(eventFetcher: FetchStoredEvents<ToDoListEvent>) :
     companion object {
         fun eventProjector(e: ToDoListEvent): List<DeltaRow<ToDoListProjectionRow>> =
             when (e) {
-                is ListCreated -> CreateRow(
-                    e.rowId(),
-                    ToDoListProjectionRow(e.owner, true, ToDoList(e.name, emptyList())),
-                )
+                is ListCreated ->
+                    CreateRow(
+                        e.rowId(),
+                        ToDoListProjectionRow(e.owner, true, ToDoList(e.name, emptyList())),
+                    )
 
                 is ItemAdded -> UpdateRow(e.rowId()) { addItem(e.item) }
                 is ItemRemoved -> UpdateRow(e.rowId()) { removeItem(e.item) }

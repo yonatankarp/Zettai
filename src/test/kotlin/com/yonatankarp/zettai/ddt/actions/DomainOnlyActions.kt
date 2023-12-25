@@ -17,35 +17,47 @@ import strikt.api.expectThat
 import strikt.assertions.hasSize
 
 class DomainOnlyActions : ZettaiActions {
-
     override val protocol: DdtProtocol = DomainOnly
+
     override fun prepare() = Ready
 
     private val hub = prepareToDoListHubForTests()
 
-    override fun ToDoListOwner.`starts with a list`(listName: String, items: List<String>) {
+    override fun ToDoListOwner.`starts with a list`(
+        listName: String,
+        items: List<String>,
+    ) {
         val list = ListName.fromTrusted(listName)
 
         hub.handle(CreateToDoList(user, list))
             .onFailure { throw RuntimeException("Failed to create list $listName") }
 
-        val created = items
-            .map { hub.handle(AddToDoItem(user, list, ToDoItem(it))) }
+        val created =
+            items
+                .map { hub.handle(AddToDoItem(user, list, ToDoItem(it))) }
 
         expectThat(created).hasSize(items.size)
     }
 
-    override fun getToDoList(user: User, listName: ListName): ZettaiOutcome<ToDoList> =
-        hub.getList(user, listName)
+    override fun getToDoList(
+        user: User,
+        listName: ListName,
+    ): ZettaiOutcome<ToDoList> = hub.getList(user, listName)
 
-    override fun addListItem(user: User, listName: ListName, item: ToDoItem) {
+    override fun addListItem(
+        user: User,
+        listName: ListName,
+        item: ToDoItem,
+    ) {
         hub.handle(AddToDoItem(user, listName, item))
     }
 
-    override fun allUserLists(user: User): ZettaiOutcome<List<ListName>> =
-        hub.getLists(user)
+    override fun allUserLists(user: User): ZettaiOutcome<List<ListName>> = hub.getLists(user)
 
-    override fun createList(user: User, listName: ListName) {
+    override fun createList(
+        user: User,
+        listName: ListName,
+    ) {
         hub.handle(CreateToDoList(user, listName))
     }
 }

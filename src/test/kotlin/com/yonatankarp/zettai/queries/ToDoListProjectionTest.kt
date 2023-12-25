@@ -20,7 +20,6 @@ import strikt.api.expectThat
 import strikt.assertions.isEqualTo
 
 open class ToDoListProjectionTest {
-
     @Nested
     inner class FindAll {
         @Test
@@ -29,11 +28,12 @@ open class ToDoListProjectionTest {
             val user = randomUser()
             val listName1 = randomListName()
             val listName2 = randomListName()
-            val events = listOf(
-                ListCreated(ToDoListId.mint(), user, listName1),
-                ListCreated(ToDoListId.mint(), user, listName2),
-                ListCreated(ToDoListId.mint(), randomUser(), randomListName()),
-            )
+            val events =
+                listOf(
+                    ListCreated(ToDoListId.mint(), user, listName1),
+                    ListCreated(ToDoListId.mint(), user, listName2),
+                    ListCreated(ToDoListId.mint(), randomUser(), randomListName()),
+                )
 
             // When
             val projection = events.buildListProjection()
@@ -69,13 +69,14 @@ open class ToDoListProjectionTest {
             val item1 = randomItem()
             val item2 = randomItem()
             val item3 = randomItem()
-            val events = listOf(
-                ListCreated(id, user, listName),
-                ItemAdded(id, item1),
-                ItemAdded(id, item2),
-                ItemModified(id, item2, item3),
-                ItemRemoved(id, item1),
-            )
+            val events =
+                listOf(
+                    ListCreated(id, user, listName),
+                    ItemAdded(id, item1),
+                    ItemAdded(id, item2),
+                    ItemModified(id, item2, item3),
+                    ItemRemoved(id, item1),
+                )
 
             // When
             val projection = events.buildListProjection()
@@ -126,12 +127,13 @@ open class ToDoListProjectionTest {
             val id1 = ToDoListId.mint()
             val id2 = ToDoListId.mint()
             val id3 = ToDoListId.mint()
-            val events = listOf(
-                ListCreated(id1, user, listName1),
-                ListCreated(id2, user, listName2),
-                ListCreated(id3, user, listName3),
-                ListPutOnHold(id2, randomString()),
-            )
+            val events =
+                listOf(
+                    ListCreated(id1, user, listName1),
+                    ListCreated(id2, user, listName2),
+                    ListCreated(id3, user, listName3),
+                    ListPutOnHold(id2, randomString()),
+                )
 
             // When
             val projection = events.buildListProjection()
@@ -161,10 +163,11 @@ open class ToDoListProjectionTest {
             val user = randomUser()
             val listName = randomListName()
             val id = ToDoListId.mint()
-            val events = listOf(
-                ListCreated(id, user, listName),
-                ListPutOnHold(id, randomString()),
-            )
+            val events =
+                listOf(
+                    ListCreated(id, user, listName),
+                    ListPutOnHold(id, randomString()),
+                )
 
             // When
             val projection = events.buildListProjection()

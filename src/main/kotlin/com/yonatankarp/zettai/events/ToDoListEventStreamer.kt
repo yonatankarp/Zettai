@@ -11,8 +11,13 @@ typealias EventPersister<E> = (Iterable<E>) -> List<E>
 typealias FetchStoredEvents<E> = (EventSequence) -> Sequence<StoredEvent<E>>
 
 interface ToDoListEventStreamer : EventStreamer<ToDoListEvent> {
-    fun retrieveIdFromName(user: User, listName: ListName): ToDoListId?
+    fun retrieveIdFromName(
+        user: User,
+        listName: ListName,
+    ): ToDoListId?
+
     fun store(newEvents: Iterable<ToDoListEvent>): List<ToDoListEvent>
+
     fun fetchAfter(startEvent: EventSequence): Sequence<ToDoListStoredEvent>
 }
 
@@ -25,10 +30,12 @@ data class StoredEvent<E : EntityEvent>(val eventSequence: EventSequence, val ev
 typealias ToDoListStoredEvent = StoredEvent<ToDoListEvent>
 
 class ToDoListEventStreamerInMemory : ToDoListEventStreamer {
-
     private val events = AtomicReference<List<ToDoListStoredEvent>>(emptyList())
 
-    override fun retrieveIdFromName(user: User, listName: ListName): ToDoListId? =
+    override fun retrieveIdFromName(
+        user: User,
+        listName: ListName,
+    ): ToDoListId? =
         events.get()
             .map(ToDoListStoredEvent::event)
             .firstOrNull { it == ListCreated(it.id, user, listName) }

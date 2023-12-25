@@ -10,7 +10,10 @@ import java.time.format.DateTimeFormatter
 
 data class HtmlPage(val raw: String)
 
-fun renderPage(user: User, list: ToDoList): HtmlPage =
+fun renderPage(
+    user: User,
+    list: ToDoList,
+): HtmlPage =
     HtmlPage(
         """
         <!DOCTYPE html>
@@ -55,19 +58,19 @@ fun renderPage(user: User, list: ToDoList): HtmlPage =
         """.trimIndent(),
     )
 
-private fun ToDoList.renderItems() =
-    items.joinToString(separator = "", transform = ::renderItem)
+private fun ToDoList.renderItems() = items.joinToString(separator = "", transform = ::renderItem)
 
-private fun renderItem(it: ToDoItem): String = """<tr>
-              <td>${it.description}</td>
-              <td>${it.dueDate?.toIsoString().orEmpty()}</td>
-              <td>${it.status}</td>
-            </tr>
-""".trimIndent()
+private fun renderItem(it: ToDoItem): String =
+    """
+    <tr>
+      <td>${it.description}</td>
+      <td>${it.dueDate?.toIsoString().orEmpty()}</td>
+      <td>${it.status}</td>
+    </tr>
+    """.trimIndent()
 
 fun LocalDate.toIsoString(): String = format(DateTimeFormatter.ISO_LOCAL_DATE)
 
-fun String?.toIsoLocalDate(): LocalDate? =
-    unlessNullOrEmpty { LocalDate.parse(this, DateTimeFormatter.ISO_LOCAL_DATE) }
+fun String?.toIsoLocalDate(): LocalDate? = unlessNullOrEmpty { LocalDate.parse(this, DateTimeFormatter.ISO_LOCAL_DATE) }
 
 fun String.toStatus(): ToDoStatus = ToDoStatus.valueOf(this)

@@ -8,26 +8,29 @@ import java.time.Instant
 import java.util.Locale
 import kotlin.random.Random
 
-fun usersGenerator(): Sequence<User> = generateSequence {
-    randomUser()
-}
+fun usersGenerator(): Sequence<User> =
+    generateSequence {
+        randomUser()
+    }
 
 fun randomUser() =
-    randomString(lowercase, 3, 6)
+    randomString(LOWERCASE, 3, 6)
         .replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
         .let(::User)
 
-fun toDoListsGenerator(): Sequence<ToDoList> = generateSequence {
-    randomToDoList()
-}
+fun toDoListsGenerator(): Sequence<ToDoList> =
+    generateSequence {
+        randomToDoList()
+    }
 
-fun randomToDoList(): ToDoList = ToDoList(
-    randomListName(),
-    itemsGenerator().take(Random.nextInt(5) + 1).toList(),
-)
+fun randomToDoList(): ToDoList =
+    ToDoList(
+        randomListName(),
+        itemsGenerator().take(Random.nextInt(5) + 1).toList(),
+    )
 
 fun randomListName(): ListName =
-    (randomString(lowercase, 3, 6) + Instant.now().toString())
+    (randomString(LOWERCASE, 3, 6) + Instant.now().toString())
         .let(::ListName)
 
 fun itemsGenerator(): Sequence<ToDoItem> =
@@ -35,4 +38,4 @@ fun itemsGenerator(): Sequence<ToDoItem> =
         randomItem()
     }
 
-fun randomItem() = ToDoItem(randomString(lowercase + digits, 5, 20), null)
+fun randomItem() = ToDoItem(randomString(LOWERCASE + DIGITS, 5, 20), null)

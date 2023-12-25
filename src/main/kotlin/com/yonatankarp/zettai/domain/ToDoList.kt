@@ -7,8 +7,10 @@ import java.time.LocalDate
  */
 data class ToDoList(val listName: ListName, val items: List<ToDoItem>) {
     companion object {
-        fun build(listName: String, items: List<String>): ToDoList =
-            ToDoList(ListName.fromUntrustedOrThrow(listName), items.map { ToDoItem(it) })
+        fun build(
+            listName: String,
+            items: List<String>,
+        ): ToDoList = ToDoList(ListName.fromUntrustedOrThrow(listName), items.map { ToDoItem(it) })
     }
 }
 
@@ -18,7 +20,9 @@ data class ToDoList(val listName: ListName, val items: List<ToDoItem>) {
 data class ListName internal constructor(val name: String) {
     companion object {
         private val validUrlPattern = "[A-Za-z0-9-]+".toRegex()
+
         fun fromTrusted(name: String): ListName = ListName(name)
+
         fun fromUntrusted(name: String): ListName? =
             if (name.matches(validUrlPattern) && name.length in 1..40) {
                 fromTrusted(name)
@@ -26,8 +30,7 @@ data class ListName internal constructor(val name: String) {
                 null
             }
 
-        fun fromUntrustedOrThrow(name: String): ListName =
-            fromUntrusted(name) ?: throw IllegalArgumentException("Invalid list name $name")
+        fun fromUntrustedOrThrow(name: String): ListName = fromUntrusted(name) ?: throw IllegalArgumentException("Invalid list name $name")
     }
 }
 
@@ -41,6 +44,7 @@ data class ToDoItem(
 ) {
     companion object {
         fun fromTrusted(description: String): ToDoItem = ToDoItem(description)
+
         fun fromUntrusted(description: String): ToDoItem? =
             if (description.length in 1..40) {
                 fromTrusted(description)

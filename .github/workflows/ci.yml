@@ -12,7 +12,7 @@ concurrency:
 
 jobs:
   pipeline:
-    uses: yonatankarp/github-actions/.github/workflows/ci.yml@v1
+    uses: yonatankarp/github-actions/.github/workflows/ci.yml@v2
     with:
       context: .
       build_dockerfile: false
